@@ -1,0 +1,45 @@
+proxies:
+  - name: Hysteria2-Server
+    type: hysteria2
+    server: 108.160.133.182
+    port: 8080
+    password: your_password_here888
+    sni: localhost
+    skip-cert-verify: true
+
+proxy-groups:
+  - name: H2
+    type: select
+    proxies:
+      - Hysteria2-Server
+
+rules:
+  # 屏蔽广告
+  - DOMAIN-SUFFIX,adsmogo.com,REJECT
+  - DOMAIN-SUFFIX,adsense.com,REJECT
+  - DOMAIN-SUFFIX,googleadservices.com,REJECT
+  - DOMAIN-SUFFIX,googlesyndication.com,REJECT
+  - DOMAIN-SUFFIX,googletagmanager.com,REJECT
+  - DOMAIN-SUFFIX,googletagservices.com,REJECT
+  - DOMAIN-SUFFIX,doubleclick.net,REJECT
+  - DOMAIN-SUFFIX,moatads.com,REJECT
+  - DOMAIN-SUFFIX,adnxs.com,REJECT
+
+  # 国内流量直连
+  - DOMAIN-SUFFIX,cn,DIRECT
+  - DOMAIN-SUFFIX,baidu.com,DIRECT
+  - DOMAIN-SUFFIX,qq.com,DIRECT
+  - DOMAIN-SUFFIX,weibo.com,DIRECT
+  - DOMAIN-SUFFIX,alibaba.com,DIRECT
+  - DOMAIN-SUFFIX,tmall.com,DIRECT
+  - DOMAIN-SUFFIX,taobao.com,DIRECT
+  - DOMAIN-SUFFIX,163.com,DIRECT
+  - DOMAIN-SUFFIX,360.cn,DIRECT
+  - DOMAIN-SUFFIX,gov.cn,DIRECT
+  - DOMAIN-SUFFIX,edu.cn,DIRECT
+
+  # 常见国内 IP 地址直连
+  - GEOIP,CN,DIRECT
+
+  # 国外流量通过代理
+  - MATCH,H2
