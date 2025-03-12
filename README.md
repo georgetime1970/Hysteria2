@@ -18,8 +18,9 @@ curl -fsSL https://git.io/hysteria.sh
 ## 2、hysteria 2一键部署管理脚本
 
 ### 官方一键部署管理脚本
-- bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/7feabd0e5b76707a31b3612efa4a9a4a78698e6d/h2.sh)
-
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/7feabd0e5b76707a31b3612efa4a9a4a78698e6d/h2.sh)
+```
 #### 服务端
 1. 准备 一个干净的 Linux VPS，建议使用 Ubuntu 20.04/22.04 或类似的版本。
 2. 使用 Hysteria 官方一键安装脚本
