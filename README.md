@@ -22,7 +22,7 @@ curl -fsSL https://git.io/hysteria.sh
 bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/7feabd0e5b76707a31b3612efa4a9a4a78698e6d/h2.sh)
 ```
 #### 服务端
-1. 准备 一个干净的 Linux VPS，建议使用 Ubuntu 20.04/22.04 或类似的版本。
+1. 准备 一个干净的 Linux VPS，建议使用 Ubuntu 20.04/22.04、debian12*64或类似的版本。
 2. 使用 Hysteria 官方一键安装脚本
 ```bash
 bash <(curl -fsSL https://get.hy2.sh/)
@@ -42,7 +42,7 @@ sudo nano /etc/hysteria/config.yaml
  - 直接覆盖原文件 `Ctrl+O 保存 Ctrl+X 退出`
 
 ```bash
-listen: :443
+listen: :8888
 
 tls:
   cert: /etc/hysteria/self-signed.crt
@@ -58,10 +58,10 @@ masquerade:
     url: https://www.google.com/
     rewriteHost: true
 ```
-5.放开443端口
+5.放开8888端口
  - 放开并检查端口
 ```bash
-sudo ufw allow 443
+sudo ufw allow 8888
 sudo ufw status
 ```
 
@@ -87,13 +87,13 @@ systemctl enable --now hysteria-server.service
 
 ### 客户端：生成 YAML 配置文件
 
- - 将以下内容复制到一个文本编辑器（如 记事本）中，然后保存为 H2.yaml
+ - 将以下内容复制到一个文本编辑器（如 记事本）中，然后保存为 H2.yaml，server改为自己的服务器ip
 ```bash
 proxies:
   - name: Hysteria2-Server
     type: hysteria2
-    server: 149.28.77.203
-    port: 443
+    server: 1.1.1.1
+    port: 8888
     password: your_password_here888
     sni: localhost
     skip-cert-verify: true
@@ -135,26 +135,6 @@ rules:
   # 国外流量通过代理
   - MATCH,H2
 ```
-
-
-
-
-## 3、sing-box精装桶一键脚本
-
-```bash
-curl -Ls https://gitlab.com/rwkgyg/sing-box-yg/raw/main/sb.sh
-```
-
-或者
-
-```bash
-wget -qO- https://gitlab.com/rwkgyg/sing-box-yg/raw/main/sb.sh 2> /dev/null
-```
-
-快捷管理命令为：`sb`
-
-项目地址：[Sing-box-yg精装桶小白专享一键四协议共存脚本](https://github.com/yonggekkk/sing-box_hysteria2_tuic_argo_reality)
-
 
 ## 4、vpn安全性检测
 ### 检查信息泄露（IP、DNS、WebRTC）
