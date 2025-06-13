@@ -27,7 +27,7 @@
 ## 📱 客户端软件下载
 
 * 🤖 **安卓端**：[ClashMeta for Android](https://github.com/MetaCubeX/ClashMetaForAndroid/releases)
-* 💻 **电脑端**：[Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev/releases)
+* 💻 **电脑端**：[Clash Verge](https://github.com/clash-verge-rev/clash-verge-rev/releases)
 
 ---
 
@@ -195,7 +195,8 @@ rules:
 
 🔧 解决方案：
 
-启用「禁用智能多宿主名称解析」：`Win + R → gpedit.msc → 计算机配置 → 管理模板 → 网络 → DNS 客户端`
+- 启用「禁用智能多宿主名称解析」：`Win + R → gpedit.msc → 计算机配置 → 管理模板 → 网络 → DNS 客户端`
+- 在 `Clash Verge` 电脑端打开 `TUN模式` , 并开启 `严格路由` 模式 , 这样当你使用 `全局模式` 时,就不会出现 `DNS` 泄露了
 
 ---
 
