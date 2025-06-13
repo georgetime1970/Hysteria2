@@ -8,7 +8,8 @@
 ## 💡 脚本说明
 
 * 🧠 本脚本适合不想折腾技术只想偷懒的领导，只要有台 *垃圾 VPS*，就能一键傻白甜安装！
-* 📄 脚本文件为项目中的 [`hy2.sh`](https://github.com/georgetime1970/h2/blob/main/h2.sh)，建议阅读源代码确保安全。
+* 🪟 本脚本适用于 `windows` 系统的傻白甜部署, `macOS/Linux` 系统需要下载对应的客户端软件并配置
+* 📄 脚本文件为项目中的 [`hy2.sh`](https://github.com/georgetime1970/h2/blob/main/h2.sh)，建议阅读源代码确保安全
 * 📦 `hy2.sh` 实际调用的是 hysteria2 的 [官方安装脚本](https://v2.hysteria.network/zh/docs/getting-started/Installation/)
 
 > ⚠️ **温馨提示**：
@@ -216,7 +217,7 @@ rules:
 
 🔧 解决方案：电脑端禁用 IPv6：
 
-控制面板 → 网络和Internet → 网络和共享中心 → 更改适配器设置 → 选中网卡,右键`属性` 取消勾选「`Internet 协议版本 6（TCP/IPv6）`」
+控制面板 → 网络和Internet → 网络和共享中心 → 更改适配器设置 → 选中网卡,右键`属性` → 取消勾选「`Internet 协议版本 6（TCP/IPv6）`」
 
 ---
 
