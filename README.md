@@ -140,7 +140,7 @@ sudo systemctl enable --now hysteria-server.service
 
 ## 📄 客户端 YAML 配置文件示例
 
-- 将以下内容复制保存为 `H2.yaml`, 或直接下载本项目的 `H2.yaml` 文件进行修改
+- 将以下内容复制保存为 `H2.yaml`, 或直接下载本项目的 [`H2.yaml`](https://github.com/georgetime1970/h2/blob/main/H2.yaml) 文件进行修改
 - 将 `server` 字段改为你自己的 `服务器IP`
 - 将 `port` 字段改为你自己的 `端口号`
 - 将 `password` 字段改为你自己的 `密码`
@@ -194,16 +194,19 @@ rules:
 ### ✅ 2. DNS 泄露检测
 
 🔍 工具：[browserleaks.com/dns](https://browserleaks.com/dns)
+
 🔧 解决方案：
-启用「禁用智能多宿主名称解析」：
-`Win + R → gpedit.msc → 计算机配置 → 管理模板 → 网络 → DNS 客户端`
+
+启用「禁用智能多宿主名称解析」：`Win + R → gpedit.msc → 计算机配置 → 管理模板 → 网络 → DNS 客户端`
 
 ---
 
 ### ✅ 3. WebRTC 泄露检测
 
 🔍 工具：[browserleaks.com/webrtc](https://browserleaks.com/webrtc)
+
 🔧 解决方案：
+
 Chrome 安装 [WebRTC Network Limiter](https://chrome.google.com/webstore/detail/webrtc-network-limiter/eiadekoaikejlgdbkbdfeijglgfdalml)，并设置为「Use my proxy server」。
 
 ---
@@ -211,7 +214,9 @@ Chrome 安装 [WebRTC Network Limiter](https://chrome.google.com/webstore/detail
 ### ✅ 4. IPv6 泄露检测
 
 🧪 同上工具页面检测 IPv6 地址
+
 🔧 解决方案：电脑端禁用 IPv6：
+
 控制面板 → 网络和共享中心 → 更改适配器 → 禁用 IPv6
 
 ---
