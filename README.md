@@ -205,7 +205,7 @@ rules:
 
 🔧 解决方案：
 
-Chrome 安装 [WebRTC Network Limiter](https://chrome.google.com/webstore/detail/webrtc-network-limiter/eiadekoaikejlgdbkbdfeijglgfdalml)，并设置为「Use my proxy server」。
+Chrome 安装 [WebRTC Network Limiter](https://chromewebstore.google.com/detail/webrtc-network-limiter/npeicpdbkakmehahjeeohfdhnlpdklia)，并设置为「Use my proxy server」。
 
 ---
 
