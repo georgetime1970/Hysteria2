@@ -150,7 +150,7 @@ proxies:
   - name: Hysteria2-Server
     type: hysteria2
     server: 1.1.1.1
-    port: 8888
+    port: 443
     password: your_password_here888
     sni: localhost
     skip-cert-verify: true
@@ -162,9 +162,6 @@ proxy-groups:
       - Hysteria2-Server
 
 rules:
-  - DOMAIN-SUFFIX,ruanyifeng.com,DIRECT
-  - DOMAIN-SUFFIX,scenefrog.com,DIRECT
-  - DOMAIN-SUFFIX,api.deepseek.com,DIRECT
   - DOMAIN-SUFFIX,cn,DIRECT
   - DOMAIN-SUFFIX,baidu.com,DIRECT
   - DOMAIN-SUFFIX,qq.com,DIRECT
