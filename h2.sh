@@ -81,3 +81,17 @@ echo "当前使用端口: $PORT"
 echo "当前使用密码: $PASSWORD"
 echo "配置文件: /etc/hysteria/config.yaml"
 echo "证书位置: /etc/hysteria/self-signed.crt"
+
+# 获取公网 IP
+PUBLIC_IP=$(curl -s https://ifconfig.me || curl -s https://api.ipify.org) || 请自行查看你主机的IP
+
+# 显示最终信息
+echo -e "${GREEN}Hysteria 2 安装和配置完成！${NC}"
+echo "--------------------------------------------"
+echo -e "🌐 服务器IP:  ${GREEN}$PUBLIC_IP${NC}"
+echo -e "🚪 使用端口:  ${GREEN}$PORT${NC}"
+echo -e "🔐 连接密码:  ${GREEN}$PASSWORD${NC}"
+echo -e "📄 配置文件:  /etc/hysteria/config.yaml"
+echo -e "🔏 证书路径:  /etc/hysteria/self-signed.crt"
+echo "--------------------------------------------"
+echo "现在你可以使用上述信息配置客户端连接啦 🎉"
