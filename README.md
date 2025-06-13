@@ -20,8 +20,7 @@
 >
 > 3️⃣ 安装时需设置 `端口` 和 `密码`：
 >
-> * 端口：建议使用 `443`（首选）
-> * 备选端口：`8443`、`8080`、`80`（需伪装得更像网页）
+> * 端口：`8443`、`4433`、`8080`、`8888` 都可以
 
 ---
 
@@ -82,7 +81,7 @@ sudo nano /etc/hysteria/config.yaml
 填写如下内容：
 - 根据需要修改 `listen` 端口 和 `password` 密码
 ```yaml
-listen: :443
+listen: :8443
 
 tls:
   cert: /etc/hysteria/self-signed.crt
@@ -107,7 +106,7 @@ masquerade:
 #### ④ 放开端口并检查防火墙
 
 ```bash
-sudo ufw allow 443
+sudo ufw allow 8443
 sudo ufw status
 ```
 
@@ -151,7 +150,7 @@ proxies:
   - name: Hysteria2-Server
     type: hysteria2
     server: 1.1.1.1
-    port: 443
+    port: 8443
     password: your_password_here888
     sni: localhost
     skip-cert-verify: true
