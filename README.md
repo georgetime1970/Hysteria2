@@ -218,12 +218,3 @@ rules:
 
 控制面板 → 网络和共享中心 → 更改适配器 → 禁用 IPv6
 
----
-
-### ✅ 5. 浏览器设置优化
-
-* ❌ 关闭 QUIC 协议
-  打开：`chrome://flags/#enable-quic` → 设置为 `Disabled`
-
-* ❌ 关闭 “安全 DNS”
-  打开：`chrome://settings/security` → 关闭【使用安全 DNS】
