@@ -1,4 +1,4 @@
-# 🌍 Hysteria2 一键部署管理脚本 🚀
+# 🌍 Hysteria2 傻白甜一键部署管理脚本 🚀
 
 **📌 Hysteria2 是什么？**
 点击 👉 [官方介绍](https://v2.hysteria.network/zh/) 了解详细内容。
@@ -144,6 +144,8 @@ sudo systemctl enable --now hysteria-server.service
 - 将 `server` 字段改为你自己的 `服务器IP`
 - 将 `port` 字段改为你自己的 `端口号`
 - 将 `password` 字段改为你自己的 `密码`
+- 然后就可以发送给 `Clash Verge` 电脑客户端或者 `ClashMeta for Android` 手机客户端使用了
+- `Clash Verge` 客户端本地导入配置教程, 请点击 [此处](https://www.clashverge.dev/guide/profile.html#_4)
 
 ```yaml
 proxies:
