@@ -190,7 +190,7 @@ rules:
 
 ### ✅ 1. IP 地址泄露检测
 
-🔍 工具：[browserleaks.com/ip](https://browserleaks.com/ip)
+🔍 工具：[IP 检测](https://browserleaks.com/ip)
 
 👀 应看到的是 VPS 的公网 IP，而非本地真实 IP。
 
@@ -198,7 +198,7 @@ rules:
 
 ### ✅ 2. WebRTC 泄露检测
 
-🔍 工具：[browserleaks.com/webrtc](https://browserleaks.com/webrtc)
+🔍 工具：[Webrtc 检测](https://browserleaks.com/webrtc)
 
 🔧 解决方案：
 
@@ -208,7 +208,7 @@ rules:
 
 ### ✅ 3. DNS 泄露检测
 
-🔍 工具：[browserleaks.com/dns](https://browserleaks.com/dns)
+🔍 工具：[DNS 检测](https://browserleaks.com/dns)
 
 🔧 解决方案：
 
