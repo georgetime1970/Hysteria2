@@ -2,7 +2,7 @@ proxies:
   - name: Hysteria2-Server
     type: hysteria2
     server: 1.1.1.1
-    port: 443
+    port: 8443
     password: your_password_here888
     sni: localhost
     skip-cert-verify: true
