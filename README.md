@@ -4,23 +4,15 @@
 - 安卓端https://github.com/MetaCubeX/ClashMetaForAndroid/releases
 - 电脑端：https://github.com/clash-verge-rev/clash-verge-rev/releases
 
+## 1.hysteria 2部署服务
 
-## 1、hysteria 1一键部署管理脚本
-
-```bash
-curl -fsSL https://git.io/hysteria.sh
-```
-
-快捷管理命令为：`hihy`
-
-安装教程：[自建hysteria服务器教程](https://github.com/Alvin9999/new-pac/wiki/%E8%87%AA%E5%BB%BAhysteria%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%95%99%E7%A8%8B)
-
-## 2、hysteria 2一键部署管理脚本
-
-### 官方一键部署管理脚本
+### 一键部署
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/7feabd0e5b76707a31b3612efa4a9a4a78698e6d/h2.sh)
 ```
+
+### 手动部署
+
 #### 服务端
 1. 准备 一个干净的 Linux VPS，建议使用 Ubuntu 20.04/22.04、debian12*64或类似的版本。
 2. 使用 Hysteria 官方一键安装脚本
@@ -105,18 +97,11 @@ proxy-groups:
       - Hysteria2-Server
 
 rules:
-  # 屏蔽广告
-  - DOMAIN-SUFFIX,adsmogo.com,REJECT
-  - DOMAIN-SUFFIX,adsense.com,REJECT
-  - DOMAIN-SUFFIX,googleadservices.com,REJECT
-  - DOMAIN-SUFFIX,googlesyndication.com,REJECT
-  - DOMAIN-SUFFIX,googletagmanager.com,REJECT
-  - DOMAIN-SUFFIX,googletagservices.com,REJECT
-  - DOMAIN-SUFFIX,doubleclick.net,REJECT
-  - DOMAIN-SUFFIX,moatads.com,REJECT
-  - DOMAIN-SUFFIX,adnxs.com,REJECT
 
   # 国内流量直连
+  - DOMAIN-SUFFIX,ruanyifeng.com,DIRECT
+  - DOMAIN-SUFFIX,scenefrog.com,DIRECT
+  - DOMAIN-SUFFIX,api.deepseek.com,DIRECT
   - DOMAIN-SUFFIX,cn,DIRECT
   - DOMAIN-SUFFIX,baidu.com,DIRECT
   - DOMAIN-SUFFIX,qq.com,DIRECT
@@ -143,10 +128,6 @@ rules:
 
 使用一些常见的在线工具来检测你的公共 IP 地址是否被泄露，特别是当你连接到 VPN 时：
 
-https://ipleak.net
-
-https://whatismyipaddress.com
-
 https://browserleaks.com/ip
 
 你应该看到的 IP 地址应该是 VPN 服务器的，而不是你本地的真实 IP。
@@ -159,10 +140,6 @@ DNS 泄露意味着你的域名查询请求可能会绕过 VPN 隧道，通过�
 
 https://browserleaks.com/dns
 
-https://dnsleaktest.com
-
-https://www.dnsleak.com
-
 确保 DNS 查询请求显示的服务器与 VPN 服务器一致，而不是你的本地 ISP。
 
 解决方案：在电脑端组策略(Win+R，输入gpedit.msc，计算机配置-->管理模板-->网络-->DNS客户端)中启用：禁用智能多宿主名称解析
@@ -174,8 +151,6 @@ WebRTC 是浏览器的一项功能，但它可能泄露本地 IP 地址，特别
 使用以下工具来检测 WebRTC 泄露：
 
 https://browserleaks.com/webrtc
-
-https://ipleak.net（也包含 WebRTC 检测）
 
 如果检测结果中显示了你的本地 IP 地址，就说明存在 WebRTC 泄露。
 
