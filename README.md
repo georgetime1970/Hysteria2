@@ -79,9 +79,9 @@ sudo nano /etc/hysteria/config.yaml
 ```
 
 填写如下内容：
-
+- 根据需要修改 `listen` 端口 和 `password` 密码
 ```yaml
-listen: :8888
+listen: :443
 
 tls:
   cert: /etc/hysteria/self-signed.crt
@@ -106,7 +106,7 @@ masquerade:
 #### ④ 放开端口并检查防火墙
 
 ```bash
-sudo ufw allow 8888
+sudo ufw allow 443
 sudo ufw status
 ```
 
