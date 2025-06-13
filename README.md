@@ -189,24 +189,24 @@ rules:
 
 ---
 
-### ✅ 2. DNS 泄露检测
+### ✅ 2. WebRTC 泄露检测
+
+🔍 工具：[browserleaks.com/webrtc](https://browserleaks.com/webrtc)
+
+🔧 解决方案：
+
+- 已过时 ~~Chrome 安装 [WebRTC Network Limiter](https://chromewebstore.google.com/detail/webrtc-network-limiter/npeicpdbkakmehahjeeohfdhnlpdklia)，在 `扩展程序选项` 中选择 `Use my proxy server`。~~
+- 在 `Clash Verge` 电脑端打开 `TUN模式` , 并开启 `严格路由` 模式 , 这样当你使用 `规则模式` 或 `全局模式` 时, 就不会出现 `WebRTC 泄露` 泄露了
+---
+
+### ✅ 3. DNS 泄露检测
 
 🔍 工具：[browserleaks.com/dns](https://browserleaks.com/dns)
 
 🔧 解决方案：
 
 - 启用「禁用智能多宿主名称解析」：`Win + R → gpedit.msc → 计算机配置 → 管理模板 → 网络 → DNS 客户端`
-- 在 `Clash Verge` 电脑端打开 `TUN模式` , 并开启 `严格路由` 模式 , 这样当你使用 `全局模式` 时,就不会出现 `DNS` 泄露了
-
----
-
-### ✅ 3. WebRTC 泄露检测
-
-🔍 工具：[browserleaks.com/webrtc](https://browserleaks.com/webrtc)
-
-🔧 解决方案：
-
-Chrome 安装 [WebRTC Network Limiter](https://chromewebstore.google.com/detail/webrtc-network-limiter/npeicpdbkakmehahjeeohfdhnlpdklia)，在 `扩展程序选项` 中选择 `Use my proxy server`。
+- 在 `Clash Verge` 电脑端打开 `TUN模式` , 并开启 `严格路由` 模式 , 这样当你使用 **`全局模式`** 时,就不会出现 `DNS` 泄露了
 
 ---
 
