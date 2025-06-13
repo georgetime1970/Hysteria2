@@ -14,8 +14,8 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}开始安装 Hysteria 2...${NC}"
 
 # 获取用户输入的端口和密码
-read -p "请输入要使用的端口号（默认 443）: " PORT
-PORT=${PORT:-443}
+read -p "请输入要使用的端口号（默认 8443）: " PORT
+PORT=${PORT:-8443}
 
 read -p "请输入连接密码（留空将使用默认密码: your_password_here888）: " PASSWORD
 PASSWORD=${PASSWORD:-your_password_here888}
