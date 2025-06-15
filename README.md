@@ -7,7 +7,7 @@
 
 ## 💡 脚本说明
 
-* 🪟 本教程适用于客户端是 `windows` 系统的领导使用, `macOS/Linux` 系统需要下载对应的客户端软件并配置
+* ❔:本教程适用于客户端是 `windows` 系统的领导使用, `macOS/Linux` 系统需要下载对应的客户端软件并配置
 * 🧠 本脚本适合不想折腾技术只想忙里偷闲的领导，只要有台 *垃圾 VPS* 服务器，就能一键傻白甜安装！
 * 📄 脚本文件为项目中的 [`hy2.sh`](https://github.com/georgetime1970/h2/blob/main/h2.sh) 文件，建议阅读源代码以解除危险情绪
 * 📦 本脚本 `hy2.sh` 文件实际调用的是 hysteria2 的 [官方安装脚本](https://v2.hysteria.network/zh/docs/getting-started/Installation/)
