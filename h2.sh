@@ -17,8 +17,8 @@ echo -e "${GREEN}开始安装 Hysteria 2...${NC}"
 read -p "请输入要使用的端口号（默认 8443）: " PORT
 PORT=${PORT:-8443}
 
-read -p "请输入连接密码（留空将使用默认密码: your_password_here888）: " PASSWORD
-PASSWORD=${PASSWORD:-your_password_here888}
+read -p "请输入连接密码（留空将使用默认密码: 88888888）: " PASSWORD
+PASSWORD=${PASSWORD:-88888888}
 
 # 1. 执行官方安装脚本
 echo "正在安装 Hysteria 2..."
