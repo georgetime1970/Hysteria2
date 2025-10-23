@@ -22,7 +22,7 @@ echo -e "${GREEN}开始安装 Hysteria 2...${NC}"
 read -p "请输入要使用的域名: " DOMAIN
 DOMAIN=${DOMAIN:-xxcloud.dpdns.org}
 
-read -p "请输入 cloudflare DNS API: " DOMAIN
+read -p "请输入 cloudflare DNS API: " CLOUDFLAREAPI
 CLOUDFLAREAPI=${CLOUDFLAREAPI:-bnBGGgvDDlQjRyNPuk7iWdTdSV8zkOLHSnuVsbOu}
 
 read -p "请输入要使用的端口号（默认 443）: " PORT

@@ -1,6 +1,6 @@
 # 🌍 Hysteria2 极速+隐私 一键部署 🚀
 
-本项目设计初衷: 追求极致的速度和严格的隐私加密保护
+**🐯 本项目设计初衷: 追求极致的速度和严格的隐私加密保护**
 
 **📌 Hysteria2 是什么？**
 点击 👉 [官方介绍](https://v2.hysteria.network/zh/) 了解详细内容。
@@ -10,8 +10,9 @@
 ## 💡 脚本说明
 
 - 💖 本教程有 2 种模式,一种是不使用域名的自签证书模式,一种是使用域名的自动获取证书模式
-  - 不使用域名的自签证书模式: 直接使用 ip 进行连接,伪装性不如域名好,但是不影响长期使用,适用于审查不是很严的地方
-  - 使用域名的自动获取证书模式: 需要注册域名,解析域名;使用 cloludflare 进行域名解析,本脚本可以自动获取证书自动续期,官方支持自动配置证书的服务商:[查看](https://v2.hysteria.network/zh/docs/advanced/ACME-DNS-Config/)
+  - 不使用域名的自签证书模式(非域名模式): 直接使用 ip 进行连接,伪装性不如域名好,但是不影响长期使用,适用于审查不是很严的地方
+  - 使用域名的自动获取证书模式(域名模式): 需要注册域名,解析域名;使用 cloludflare 进行域名解析,本脚本可以自动获取证书自动续期,官方支持自动配置证书的服务商:[查看](https://v2.hysteria.network/zh/docs/advanced/ACME-DNS-Config/)
+  - **推荐使用域名模式**,非域名模式需要每个设备都安装证书才能使用,而域名模式则不需要;如果要在设备上使用非域名模式,又不安装证书则将客户端配置中的`skip-cert-verify: false` 设置为`true`即可正常使用,但你的连接将不再加密
 - 📇 本教程主要适用于客户端是 `windows` 系统的官人使用, `macOS/Linux` 系统也可以使用,洒家在`Ubuntu24`的桌面版也能正常使用客户端,只是需要下载对应的客户端软件,配置文件都是一样的
 - 🧠 本脚本适合不想折腾技术只想忙里偷闲的官人，只要有台 _`垃圾 VPS`_ 服务器，就能一键安装！
 - 📄 脚本文件为本项目中的 [h2.sh](https://github.com/georgetime1970/h2/blob/main/h2.sh) 和 [domain-h2.sh](https://github.com/georgetime1970/h2/blob/main/domain-h2.sh) 文件,已开源,请放心食用
@@ -93,10 +94,18 @@ sudo systemctl restart hysteria-server.service
 sudo systemctl status hysteria-server.service
 ```
 
-#### 设置开机自启
+#### 设置 hysteria2 开机自启
 
 ```bash
 sudo systemctl enable hysteria-server.service
+```
+
+#### 查询 hysteria2 服务端日志
+
+如果 hysteria2 启动失败可查看原因
+
+```bash
+journalctl --no-pager -e -u hysteria-server.service
 ```
 
 ---
