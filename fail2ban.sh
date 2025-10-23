@@ -22,17 +22,29 @@ MAXRETRY=${MAXRETRY:-5}
 read -p "请输入封禁时间，单位为秒（默认 864000 秒 10天）: " BAN_TIME
 BAN_TIME=${BAN_TIME:-864000}
 
+# 使用 curl 从外部服务获取公网 IP
+PUBLIC_IP=$(curl -s --max-time 5 https://ifconfig.me \
+  || curl -s --max-time 5 https://api.ipify.org \
+  || curl -s --max-time 5 https://ipinfo.io/ip \
+  || curl -s --max-time 5 https://checkip.amazonaws.com)
+if [ -z "$PUBLIC_IP" ]; then
+    echo "❌ 无法获取公网 IP，退出..."
+    exit 1
+else
+    echo "✅ 公网 IP: $PUBLIC_IP"
+fi
+
 # 安装 fail2ban
 sudo apt update
 sudo apt install fail2ban -y
 
-# 写入配置文件
+# 写入配置文件, 使用这个服务器代理的节点登录,不会被封禁
 sudo tee /etc/fail2ban/jail.local > /dev/null << EOF
 [DEFAULT]
 bantime = $BAN_TIME
 findtime = 600
 maxretry = $MAXRETRY
-ignoreip = 127.0.0.1/8 ::1
+ignoreip = 127.0.0.1/8 ::1 $PUBLIC_IP
 
 [sshd]
 enabled = true
