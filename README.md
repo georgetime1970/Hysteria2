@@ -7,10 +7,10 @@
 
 ## 💡 脚本说明
 
-* ❤ 本教程适用于客户端是 `windows` 系统的领导使用, `macOS/Linux` 系统需要下载对应的客户端软件并配置
-* 🧠 本脚本适合不想折腾技术只想忙里偷闲的领导，只要有台 *垃圾 VPS* 服务器，就能一键傻白甜安装！
-* 📄 脚本文件为项目中的 [`hy2.sh`](https://github.com/georgetime1970/h2/blob/main/h2.sh) 文件，建议阅读源代码以解除危险情绪
-* 📦 本脚本 `hy2.sh` 文件实际调用的是 hysteria2 的 [官方安装脚本](https://v2.hysteria.network/zh/docs/getting-started/Installation/)
+- ❤ 本教程适用于客户端是 `windows` 系统的领导使用, `macOS/Linux` 系统需要下载对应的客户端软件并配置
+- 🧠 本脚本适合不想折腾技术只想忙里偷闲的领导，只要有台 _垃圾 VPS_ 服务器，就能一键傻白甜安装！
+- 📄 脚本文件为项目中的 [`hy2.sh`](https://github.com/georgetime1970/h2/blob/main/h2.sh) 文件，建议阅读源代码以解除危险情绪
+- 📦 本脚本 `hy2.sh` 文件实际调用的是 hysteria2 的 [官方安装脚本](https://v2.hysteria.network/zh/docs/getting-started/Installation/)
 
 > ⚠️ **温馨提示**：
 >
@@ -20,14 +20,14 @@
 >
 > 3️⃣ 安装时需设置 `端口` 和 `密码`：
 >
-> * 端口：`8443`、`4433`、`8080`、`8888` 都可以
+> - 端口：`8443`、`4433`、`8080`、`8888` 都可以
 
 ---
 
 ## 📱 客户端软件下载
 
-* 🤖 **安卓端**：[ClashMeta for Android](https://github.com/MetaCubeX/ClashMetaForAndroid/releases)
-* 💻 **电脑端**：[Clash Verge](https://github.com/clash-verge-rev/clash-verge-rev/releases)
+- 🤖 **安卓端**：[ClashMeta for Android](https://github.com/MetaCubeX/ClashMetaForAndroid/releases)
+- 💻 **电脑端**：[Clash Verge](https://github.com/clash-verge-rev/clash-verge-rev/releases)
 
 ---
 
@@ -37,14 +37,14 @@
 
 建议使用干净的 Linux VPS，系统推荐：
 
-* Ubuntu 20.04 / 22.04
-* Debian 12 x64
-* 或其他稳定版本
+- Ubuntu 20.04 / 22.04
+- Debian 12 x64
+- 或其他稳定版本
 
 ---
 
->[!IMPORTANT]
->下面的 **`一键部署方式`** 和 **`手动部署步骤`** 二选一即可, 不要重复部署!
+> [!IMPORTANT]
+> 下面的 **`一键部署方式`** 和 **`手动部署步骤`** 二选一即可, 不要重复部署!
 
 ---
 
@@ -72,8 +72,8 @@ bash <(curl -fsSL https://get.hy2.sh/)
 sudo openssl req -x509 -newkey rsa:2048 -keyout /etc/hysteria/self-signed.key -out /etc/hysteria/self-signed.crt -days 1000 -nodes -subj "/CN=localhost"
 ```
 
-* 🔐 私钥位置：`/etc/hysteria/self-signed.key`
-* 📄 证书位置：`/etc/hysteria/self-signed.crt`
+- 🔐 私钥位置：`/etc/hysteria/self-signed.key`
+- 📄 证书位置：`/etc/hysteria/self-signed.crt`
 
 ---
 
@@ -84,7 +84,9 @@ sudo nano /etc/hysteria/config.yaml
 ```
 
 填写如下内容：
+
 - 根据需要修改 `listen` 端口 和 `password` 密码
+
 ```yaml
 listen: :8443
 
@@ -103,8 +105,8 @@ masquerade:
     rewriteHost: true
 ```
 
-* 💾 `Ctrl+O` 保存
-* ❌ `Ctrl+X` 退出
+- 💾 `Ctrl+O` 保存
+- ❌ `Ctrl+X` 退出
 
 ---
 
@@ -204,6 +206,7 @@ rules:
 
 - 已过时 ~~Chrome 安装 [WebRTC Network Limiter](https://chromewebstore.google.com/detail/webrtc-network-limiter/npeicpdbkakmehahjeeohfdhnlpdklia)，在 `扩展程序选项` 中选择 `Use my proxy server`。~~
 - 在 `Clash Verge` 电脑端打开 `TUN模式` , 并开启 `严格路由` 模式 , 这样当你使用 `规则模式` 或 `全局模式` 时, 就不会出现 `WebRTC 泄露` 泄露了
+
 ---
 
 ### ✅ 3. DNS 泄露检测
@@ -223,15 +226,16 @@ rules:
 
 🔧 解决方案：电脑端禁用 IPv6：
 
-控制面板 → 网络和Internet → 网络和共享中心 → 更改适配器设置 → 选中网卡,右键`属性` → 取消勾选「`Internet 协议版本 6（TCP/IPv6）`」
+控制面板 → 网络和 Internet → 网络和共享中心 → 更改适配器设置 → 选中网卡,右键`属性` → 取消勾选「`Internet 协议版本 6（TCP/IPv6）`」
 
 ---
 
 ## 🧭 `Clash Verge` 中「系统代理」和「TUN 模式」的区别与适用场景
-| 模式名称       | 本质作用                           | 覆盖范围                          | 推荐使用场景             |
-| ---------- | ------------------------------ | ----------------------------- | ------------------ |
-| **系统代理**   | 设置浏览器/应用的 HTTP/HTTPS/SOCKS5 代理 | ❗️**只作用于支持代理的软件**（如浏览器）       | 网页浏览、开发调试、轻量使用     |
-| **TUN 模式** | 创建虚拟网卡，拦截系统层所有流量               | ✅ **拦截所有程序/服务的流量**，包括不支持代理的软件 | 游戏、音乐软件、系统级加速、全局代理 |
+
+| 模式名称     | 本质作用                                 | 覆盖范围                                             | 推荐使用场景                         |
+| ------------ | ---------------------------------------- | ---------------------------------------------------- | ------------------------------------ |
+| **系统代理** | 设置浏览器/应用的 HTTP/HTTPS/SOCKS5 代理 | ❗️**只作用于支持代理的软件**（如浏览器）            | 网页浏览、开发调试、轻量使用         |
+| **TUN 模式** | 创建虚拟网卡，拦截系统层所有流量         | ✅ **拦截所有程序/服务的流量**，包括不支持代理的软件 | 游戏、音乐软件、系统级加速、全局代理 |
 
 - 简单理解就是 **`系统代理`** 只会代理一部分软件, **`TUN 模式`** 会接管电脑的所有流量出入
 - 如果要追求极致隐私, 就使用 **`TUN 模式`** 并设置 `严格路由`, 但是会使访问变慢一点

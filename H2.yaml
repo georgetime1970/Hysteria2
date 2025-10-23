@@ -4,8 +4,8 @@ proxies:
     server: 1.1.1.1
     port: 8443
     password: your_password_here888
-    sni: localhost
-    skip-cert-verify: true
+    # sni: 1.1.1.1
+    # skip-cert-verify: false
 
 proxy-groups:
   - name: H2
@@ -14,7 +14,7 @@ proxy-groups:
       - Hysteria2-Server
 
 rules:
- # 国内流量直连
+  # 国内流量直连
   - DOMAIN-SUFFIX,ruanyifeng.com,DIRECT
   - DOMAIN-SUFFIX,scenefrog.com,DIRECT
   - DOMAIN-SUFFIX,api.deepseek.com,DIRECT
