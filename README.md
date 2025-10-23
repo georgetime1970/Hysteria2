@@ -7,27 +7,30 @@
 
 ## 💡 脚本说明
 
-- ❤ 本教程适用于客户端是 `windows` 系统的领导使用, `macOS/Linux` 系统需要下载对应的客户端软件并配置
-- 🧠 本脚本适合不想折腾技术只想忙里偷闲的领导，只要有台 _垃圾 VPS_ 服务器，就能一键傻白甜安装！
-- 📄 脚本文件为项目中的 [`hy2.sh`](https://github.com/georgetime1970/h2/blob/main/h2.sh) 文件，建议阅读源代码以解除危险情绪
-- 📦 本脚本 `hy2.sh` 文件实际调用的是 hysteria2 的 [官方安装脚本](https://v2.hysteria.network/zh/docs/getting-started/Installation/)
+- 💖 本教程有 2 种模式,一种是不使用域名的自签证书模式,一种是使用域名的自动获取证书模式
+  - 不使用域名的自签证书模式: 直接使用 ip 进行连接,伪装性不如域名好,但是不影响长期使用,适用于审查不是很严的地方
+  - 使用域名的自动获取证书模式: 需要注册域名,解析域名;使用 cloludflare 进行域名解析,本脚本可以自动获取证书自动续期,官方支持自动配置证书的服务商:[查看](https://v2.hysteria.network/zh/docs/advanced/ACME-DNS-Config/)
+- 📇 本教程主要适用于客户端是 `windows` 系统的官人使用, `macOS/Linux` 系统也可以使用,洒家在`Ubuntu24`的桌面版也能正常使用客户端,只是需要下载对应的客户端软件,配置文件都是一样的
+- 🧠 本脚本适合不想折腾技术只想忙里偷闲的官人，只要有台 _`垃圾 VPS`_ 服务器，就能一键安装！
+- 📄 脚本文件为本项目中的 [h2.sh](https://github.com/georgetime1970/h2/blob/main/h2.sh) 和 [domain-h2.sh](https://github.com/georgetime1970/h2/blob/main/domain-h2.sh) 文件,已开源,请放心食用
+- 📦 本项目脚本文件核心是调用的 hysteria2 [官方安装脚本](https://v2.hysteria.network/zh/docs/getting-started/Installation/)
 
 > ⚠️ **温馨提示**：
 >
-> 1️⃣ 不适合需要配置域名的领导
+> 1️⃣ 域名和非域名模式选择一种安装即可
 >
-> 2️⃣ 不适合需要端口跳跃的领导
+> 2️⃣ 本项目没有设置端口跳跃,洒家目前没有遇到过端口被封情况,如果怀疑被封,断开重连即可,如有需要可再增加此功能
 >
 > 3️⃣ 安装时需设置 `端口` 和 `密码`：
 >
-> - 端口：`8443`、`4433`、`8080`、`8888` 都可以
+> - 端口：`443`、`8443`、`4433`、`8080`、`8888` 都可以,推荐使用`443`端口
 
 ---
 
 ## 📱 客户端软件下载
 
 - 🤖 **安卓端**：[ClashMeta for Android](https://github.com/MetaCubeX/ClashMetaForAndroid/releases)
-- 💻 **电脑端**：[Clash Verge](https://github.com/clash-verge-rev/clash-verge-rev/releases)
+- 💻 **电脑端**：[Clash Verge](https://github.com/clash-verge-rev/clash-verge-rev/releases) ,有 linux 版本
 
 ---
 
@@ -43,114 +46,66 @@
 
 ---
 
-> [!IMPORTANT]
-> 下面的 **`一键部署方式`** 和 **`手动部署步骤`** 二选一即可, 不要重复部署!
-
----
-
-### ⚡ 一键部署方式
+### ⚡ 非域名模式 一键部署
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/main/h2.sh)
 ```
 
----
-
-### 🛠️ 手动部署步骤
-
-#### ① 安装 hysteria2
+### ⚡ 域名模式 一键部署
 
 ```bash
-bash <(curl -fsSL https://get.hy2.sh/)
+bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/main/domain-h2.sh)
 ```
 
 ---
 
-#### ② 生成自签名证书
+### 常用命令
+
+#### 放开端口并检查防火墙
 
 ```bash
-sudo openssl req -x509 -newkey rsa:2048 -keyout /etc/hysteria/self-signed.key -out /etc/hysteria/self-signed.crt -days 1000 -nodes -subj "/CN=localhost"
-```
-
-- 🔐 私钥位置：`/etc/hysteria/self-signed.key`
-- 📄 证书位置：`/etc/hysteria/self-signed.crt`
-
----
-
-#### ③ 编辑配置文件
-
-```bash
-sudo nano /etc/hysteria/config.yaml
-```
-
-填写如下内容：
-
-- 根据需要修改 `listen` 端口 和 `password` 密码
-
-```yaml
-listen: :8443
-
-tls:
-  cert: /etc/hysteria/self-signed.crt
-  key: /etc/hysteria/self-signed.key
-
-auth:
-  type: password
-  password: your_password_here888
-
-masquerade:
-  type: proxy
-  proxy:
-    url: https://www.google.com/
-    rewriteHost: true
-```
-
-- 💾 `Ctrl+O` 保存
-- ❌ `Ctrl+X` 退出
-
----
-
-#### ④ 放开端口并检查防火墙
-
-```bash
-sudo ufw allow 8443
+sudo ufw allow 443
 sudo ufw status
 ```
 
----
+#### 启动 hysteria2 服务
 
-#### ⑤ 设置证书权限
+首次启动执行
 
 ```bash
-sudo chmod 644 /etc/hysteria/self-signed.crt
-sudo chmod 644 /etc/hysteria/self-signed.key
+sudo systemctl start hysteria-server.service
 ```
 
----
+#### 重启 hysteria2 服务
 
-#### ⑥ 重启服务 & 查看状态
+修改配置文件后执行
 
 ```bash
 sudo systemctl restart hysteria-server.service
+```
+
+#### 查看 hysteria2 服务状态
+
+```bash
 sudo systemctl status hysteria-server.service
 ```
 
----
-
-#### ⑦ 设置开机自启
+#### 设置开机自启
 
 ```bash
-sudo systemctl enable --now hysteria-server.service
+sudo systemctl enable hysteria-server.service
 ```
 
 ---
 
 ## 📄 客户端 YAML 配置文件示例
 
-- 将以下内容复制保存为 `H2.yaml`, 或直接下载本项目的 [`H2.yaml`](https://github.com/georgetime1970/h2/blob/main/H2.yaml) 文件进行修改
-- 将 `server` 字段改为你自己的 `服务器IP`
+- 将以下内容复制保存为 `h2.yaml`, 或直接下载本项目的 [h2.yaml](https://raw.githubusercontent.com/georgetime1970/h2/main/h2.yaml) 文件进行修改
+- 将 `server` 字段改为你自己的 `服务器IP`或`域名`
 - 将 `port` 字段改为你自己的 `端口号`
 - 将 `password` 字段改为你自己的 `密码`
+- 将 `sni` 字段改为你自己的 `服务器IP`或`域名`,必须与`server` 字段一致
 - 然后就可以发送给 `Clash Verge` 电脑客户端或者 `ClashMeta for Android` 手机客户端使用了
 - `Clash Verge` 客户端本地导入配置教程, 请点击 👉 [教程](https://www.clashverge.dev/guide/profile.html#_4)
 
@@ -158,11 +113,12 @@ sudo systemctl enable --now hysteria-server.service
 proxies:
   - name: Hysteria2-Server
     type: hysteria2
-    server: 1.1.1.1
-    port: 8443
-    password: your_password_here888
-    sni: localhost
-    skip-cert-verify: true
+    server: 1.1.1.1 <你的服务器ip 或 域名>
+    port: 443 <你设置的端口>
+    password: your_password_here <你的密码>
+    sni: 1.1.1.1 <你的服务器ip 或 域名 必须与 server字段 一致>
+    # 是否跳过证书验证,默认验证证书,跳过验证连接将不再加密
+    skip-cert-verify: false
 
 proxy-groups:
   - name: H2
@@ -201,6 +157,7 @@ rules:
 ### ✅ 2. WebRTC 泄露检测
 
 🔍 工具：[WebRTC 检测](https://browserleaks.com/webrtc)
+`WebRTC Leak Test`字段显示为`✔No Leak`,代表没有泄露.
 
 🔧 解决方案：
 
@@ -215,14 +172,15 @@ rules:
 
 🔧 解决方案：
 
-- 启用「禁用智能多宿主名称解析」：`Win + R` → `gpedit.msc` → `计算机配置` → `管理模板` → `网络` → `DNS 客户端`
+- 启用「`禁用智能多宿主名称解析`」：`Win + R` → `gpedit.msc` → `计算机配置` → `管理模板` → `网络` → `DNS 客户端`
 - 在 `Clash Verge` 电脑端打开 `TUN模式` , 并开启 `严格路由` 模式 , 这样当你使用 **`全局模式`** 时,就不会出现 `DNS` 泄露了
 
 ---
 
 ### ✅ 4. IPv6 泄露检测
 
-🧪 同上工具页面检测 IPv6 地址
+🔍 工具：[IP 检测](https://browserleaks.com/ip)
+查看`IPv6 Address`字段,显示 为`n/a`即表示没有检测到 IPv6,这意味着只有 IPv4 流量可用，并且您的真实位置不能通过 IPv6 泄漏.
 
 🔧 解决方案：电脑端禁用 IPv6：
 
@@ -238,5 +196,5 @@ rules:
 | **TUN 模式** | 创建虚拟网卡，拦截系统层所有流量         | ✅ **拦截所有程序/服务的流量**，包括不支持代理的软件 | 游戏、音乐软件、系统级加速、全局代理 |
 
 - 简单理解就是 **`系统代理`** 只会代理一部分软件, **`TUN 模式`** 会接管电脑的所有流量出入
-- 如果要追求极致隐私, 就使用 **`TUN 模式`** 并设置 `严格路由`, 但是会使访问变慢一点
+- 如果要追求极致隐私, 就使用 **`TUN 模式`** 并设置 `严格路由`和`全局模式`, 但是会使访问变慢一点
 - 如果不追求极致隐私, 又想访问快一点,就使用 **`系统代理`**

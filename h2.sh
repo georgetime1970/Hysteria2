@@ -7,11 +7,17 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # 使用 curl 从外部服务获取公网 IP
-PUBLIC_IP=$(curl -s https://ifconfig.me || curl -s https://api.ipify.org || curl -s https://ipinfo.io/ip)
+PUBLIC_IP=$(curl -s --max-time 5 https://ifconfig.me \
+  || curl -s --max-time 5 https://api.ipify.org \
+  || curl -s --max-time 5 https://ipinfo.io/ip \
+  || curl -s --max-time 5 https://checkip.amazonaws.com)
 if [ -z "$PUBLIC_IP" ]; then
-    echo "无法获取公网 IP，退出..."
+    echo "❌ 无法获取公网 IP，退出..."
     exit 1
+else
+    echo "✅ 公网 IP: $PUBLIC_IP"
 fi
+
 
 # 设置颜色
 RED='\033[0;31m'
@@ -28,11 +34,11 @@ read -p "请输入连接密码（留空将使用默认密码: 88888888）: " PAS
 PASSWORD=${PASSWORD:-88888888}
 
 # 1. 执行官方安装脚本
-echo "开始安装 Hysteria 2..."
 bash <(curl -fsSL https://get.hy2.sh/) || {
     echo -e "${RED}Hysteria 安装失败，请检查网络连接${NC}"
     exit 1
 }
+echo -e "${GREEN}Hysteria 2 服务已成功安装,进入配置${NC}"
 
 # 2. 创建证书目录
 mkdir -p /etc/hysteria
@@ -111,14 +117,14 @@ EOF
 echo -e "${GREEN}客户端配置文件创建成功${NC}"
 
 # 6. 开放防火墙端口
-echo "正在配置防火墙..."
 ufw allow $PORT
 ufw status
+echo -e "${GREEN}防火墙完成！${NC}"
 
-# 7. 重启服务并设置开机自启
-echo "正在重启 Hysteria 服务..."
-systemctl restart hysteria-server.service
-systemctl enable --now hysteria-server.service
+# 7. 启动服务并设置开机自启
+echo "正在启动启 Hysteria 服务..."
+systemctl start hysteria-server.service
+systemctl enable hysteria-server.service
 
 # 8. 检查服务状态
 echo "检查服务状态..."
@@ -131,10 +137,20 @@ echo "--------------------------------------------"
 echo -e "🌐 服务器IP:  ${GREEN}$PUBLIC_IP${NC}"
 echo -e "🚪 使用端口:  ${GREEN}$PORT${NC}"
 echo -e "🔐 连接密码:  ${GREEN}$PASSWORD${NC}"
-echo -e "📄 配置文件:  /etc/hysteria/config.yaml"
+echo -e "📄 服务端配置:  /etc/hysteria/config.yaml"
+echo -e "📄 客户端配置:  /etc/hysteria/h2.yaml"
 echo -e "🔏 证书路径:  /etc/hysteria/self-signed.crt"
 echo "--------------------------------------------"
 echo "现在你可以使用上述信息配置客户端连接啦 🎉"
+echo
+echo -e "${RED}请仔细阅读以下证书的配置流程！${NC}"
+echo "${GREEN}1.将下面的证书内容复制到客户端设备上，保存为 self-signed.crt 文件。${NC}"
+echo "${GREEN}2.Windows 客户端,双击 self-signed.crt 文件 → “安装证书” → 选择“本地计算机” → 选择“将所有的证书都放入下列存储” →  存储到 “受信任的根证书颁发机构”。${NC}"
+echo "${GREEN}3.如果不在意数据泄露,可以直接将 客户端配置文件中的"skip-cert-verify: false" 设置为true,将跳过证书验证${NC}"
+echo "💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖"
+echo -e 复制以下证书内容:
+cat /etc/hysteria/self-signed.crt
+echo "💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖"
 echo
 read -p "需要显示客户端具体配置内容,请按回车💕"
 echo "---------------------------------------------------"

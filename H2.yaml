@@ -1,11 +1,12 @@
 proxies:
   - name: Hysteria2-Server
     type: hysteria2
-    server: 1.1.1.1
-    port: 8443
-    password: your_password_here888
-    # sni: 1.1.1.1
-    # skip-cert-verify: false
+    server: 1.1.1.1 <你的服务器ip 或 域名>
+    port: 443 <你设置的端口>
+    password: your_password_here <你的密码>
+    sni: 1.1.1.1 <你的服务器ip 或 域名 必须与 server字段 一致>
+    # 是否跳过证书验证,默认验证证书,跳过验证连接将不再加密
+    skip-cert-verify: false
 
 proxy-groups:
   - name: H2
@@ -14,10 +15,6 @@ proxy-groups:
       - Hysteria2-Server
 
 rules:
-  # 国内流量直连
-  - DOMAIN-SUFFIX,ruanyifeng.com,DIRECT
-  - DOMAIN-SUFFIX,scenefrog.com,DIRECT
-  - DOMAIN-SUFFIX,api.deepseek.com,DIRECT
   - DOMAIN-SUFFIX,cn,DIRECT
   - DOMAIN-SUFFIX,baidu.com,DIRECT
   - DOMAIN-SUFFIX,qq.com,DIRECT
@@ -29,9 +26,5 @@ rules:
   - DOMAIN-SUFFIX,360.cn,DIRECT
   - DOMAIN-SUFFIX,gov.cn,DIRECT
   - DOMAIN-SUFFIX,edu.cn,DIRECT
-
-  # 常见国内 IP 地址直连
   - GEOIP,CN,DIRECT
-
-  # 国外流量通过代理
   - MATCH,H2
