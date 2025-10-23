@@ -17,8 +17,8 @@ echo -e "${GREEN}你将自定义设置失败几次后封禁恶意 IP 和封禁�
 echo "😎😎😎😎😎😎😎😎😎😎😎😎😎😎😎😎"
 echo
 # 获取用户输入的失败次数和封禁时间
-read -p "请输入允许的最大失败登录次数（默认 5 次）: " MAXRETRY
-MAXRETRY=${MAXRETRY:-5}   
+read -p "请输入允许的最大失败登录次数（默认 3 次）: " MAXRETRY
+MAXRETRY=${MAXRETRY:-3}   
 read -p "请输入封禁时间，单位为秒（默认 864000 秒 10天）: " BAN_TIME
 BAN_TIME=${BAN_TIME:-864000}
 
@@ -62,6 +62,8 @@ fi
 systemctl enable --now fail2ban
 
 # 查看Fail2ban状态
+echo
+echo -e "${GREEN}检查fail2ban状态  显示 Active: active (running) 即为成功${NC}"
 systemctl status fail2ban | head -n 10
 
 # 显示爆破状态信息

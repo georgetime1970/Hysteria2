@@ -20,7 +20,7 @@ echo -e "${GREEN}开始安装 Hysteria 2...${NC}"
 
 # 获取用户输入的域名,cloudflare DNS API,端口和密码
 read -p "请输入要使用的域名: " DOMAIN
-DOMAIN=${DOMAIN:-xxcloud.dpdns.org}
+DOMAIN=${DOMAIN:-cloud.dpdns.org}
 
 read -p "请输入 cloudflare DNS API: " CLOUDFLAREAPI
 CLOUDFLAREAPI=${CLOUDFLAREAPI:-bnBGGgvDDlQjRyNPuk7iWdTdSV8zkOLHSnuVsbOu}
