@@ -18,7 +18,7 @@ echo "😎😎😎😎😎😎😎😎😎😎😎😎😎😎😎😎"
 echo
 read -p "回车继续... Ctrl+c 退出" ENTER
 # 获取用户输入的失败次数和封禁时间
-read -p "请输入允许的最大失败登录次数（默认 5 次）: "MAXRETRY
+read -p "请输入允许的最大失败登录次数（默认 5 次）: " MAXRETRY
 MAXRETRY=${MAXRETRY:-5}   
 read -p "请输入封禁时间，单位为秒（默认 864000 秒 10天）: " BAN_TIME
 BAN_TIME=${BAN_TIME:-864000}
