@@ -7,8 +7,8 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # 使用 curl 从外部服务获取公网 IP
-PUBLIC_IP=$(curl -s https://ifconfig.me || curl -s https://api.ipify.org)
-if [ -z "$IP" ]; then
+PUBLIC_IP=$(curl -s https://ifconfig.me || curl -s https://api.ipify.org || curl -s https://ipinfo.io/ip)
+if [ -z "$PUBLIC_IP" ]; then
     echo "无法获取公网 IP，退出..."
     exit 1
 fi
