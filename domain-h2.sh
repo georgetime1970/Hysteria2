@@ -65,7 +65,7 @@ EOF
 echo -e "${GREEN}服务端配置文件创建成功${NC}"
 
 # 3.创建客户端配置文件
-cat > /etc/hysteria/h2.yaml << EOF
+sudo cat > /etc/hysteria/h2.yaml << EOF
 proxies:
   - name: $DOMAIN
     type: hysteria2

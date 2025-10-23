@@ -35,11 +35,11 @@ else
 fi
 
 # 安装 fail2ban
-sudo apt update
-sudo apt install fail2ban -y
+apt update
+apt install fail2ban -y
 
 # 写入配置文件, 使用这个服务器代理的节点登录,不会被封禁
-sudo tee /etc/fail2ban/jail.local > /dev/null << EOF
+cat > /etc/fail2ban/jail.local << EOF
 [DEFAULT]
 bantime = $BAN_TIME
 findtime = 600
@@ -62,10 +62,10 @@ fi
 systemctl enable --now fail2ban
 
 # 查看Fail2ban状态
-sudo systemctl status fail2ban | head -n 10
+systemctl status fail2ban | head -n 10
 
 # 显示爆破状态信息
 echo
 echo -e "${GREEN}✅ fail2ban 已成功安装并配置完成！${NC}"
 echo -e "${GREEN}使用命令 sudo fail2ban-client status sshd 即可查看以下封禁情况${NC}"
-sudo fail2ban-client status sshd
+fail2ban-client status sshd
