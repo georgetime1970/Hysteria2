@@ -24,7 +24,10 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}开始安装 Hysteria 2...${NC}"
+echo
+echo -e "${GREEN}欢迎使用 hysteria2 非域名模式安装脚本 ${NC}"
+echo "😎😎😎😎😎😎😎😎😎😎😎😎😎😎😎😎"
+echo
 
 # 获取用户输入的端口和密码
 read -p "请输入要使用的端口号（默认 443）: " PORT
@@ -42,7 +45,7 @@ echo -e "${GREEN}Hysteria 2 服务已成功安装,进入配置${NC}"
 
 # 2. 创建证书目录
 mkdir -p /etc/hysteria
-# 3. 生成自签名证书
+# 3. 生成365天的自签名证书
 openssl req -x509 -newkey rsa:2048 -keyout /etc/hysteria/self-signed.key -out /etc/hysteria/self-signed.crt -days 365 -nodes -subj "/CN=$PUBLIC_IP" -addext "subjectAltName=IP:$PUBLIC_IP" || {
     echo -e "${RED}证书生成失败${NC}"
     exit 1
