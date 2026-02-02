@@ -168,7 +168,9 @@ sudo fail2ban-client status sshd
 
 ## 📄 客户端 YAML 配置文件示例
 
-- 将以下内容复制保存为 `H2.yaml`,;或服务器端安装完成后,按下回车键会获得对应的完整配置,直接复制使用即可;或直接下载本项目的 [H2.yaml](https://github.com/georgetime1970/h2/blob/main/H2.yaml) 文件进行修改
+- 将以下内容复制保存为 `H2.yaml`,
+- 或服务器端安装完成后,按下回车键会获得对应的完整配置,直接复制使用即可;
+- 或直接下载本项目的 [H2.yaml](https://github.com/georgetime1970/h2/blob/main/H2.yaml) 文件进行修改
 - 将 `server` 字段改为你自己的 `服务器IP`或`域名`
 - 将 `port` 字段改为你自己的 `端口号`
 - 将 `password` 字段改为你自己的 `密码`
