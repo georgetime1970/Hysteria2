@@ -5,7 +5,8 @@ proxies:
     port: 443 <你设置的端口>
     password: your_password_here <你的密码>
     sni: 1.1.1.1 <你的服务器ip 或 域名 必须与 server字段 一致>
-    # 是否跳过证书验证,默认验证证书,跳过验证连接将不再加密
+    # 是否跳过证书验证,默认验证证书,设置为true则跳过验证
+    # 如果跳过验证,您的客户端将无法识别您的服务器是否被冒充
     skip-cert-verify: false
 
 proxy-groups:

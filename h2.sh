@@ -95,9 +95,6 @@ proxy-groups:
 
 rules:
  # 国内流量直连
-  - DOMAIN-SUFFIX,ruanyifeng.com,DIRECT
-  - DOMAIN-SUFFIX,scenefrog.com,DIRECT
-  - DOMAIN-SUFFIX,api.deepseek.com,DIRECT
   - DOMAIN-SUFFIX,cn,DIRECT
   - DOMAIN-SUFFIX,baidu.com,DIRECT
   - DOMAIN-SUFFIX,qq.com,DIRECT
