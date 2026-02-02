@@ -77,7 +77,7 @@ EOF
 echo -e "${GREEN}服务端配置文件创建成功${NC}"
 
 # 6.创建客户端配置文件
-cat > /etc/hysteria/h2.yaml << EOF
+cat > /etc/hysteria/H2.yaml << EOF
 proxies:
   - name: $PUBLIC_IP
     type: hysteria2
@@ -141,7 +141,7 @@ echo -e "🌐 服务器IP:  ${GREEN}$PUBLIC_IP${NC}"
 echo -e "🚪 使用端口:  ${GREEN}$PORT${NC}"
 echo -e "🔐 连接密码:  ${GREEN}$PASSWORD${NC}"
 echo -e "📄 服务端配置:  /etc/hysteria/config.yaml"
-echo -e "📄 客户端配置:  /etc/hysteria/h2.yaml"
+echo -e "📄 客户端配置:  /etc/hysteria/H2.yaml"
 echo -e "🔏 证书路径:  /etc/hysteria/self-signed.crt"
 echo "--------------------------------------------"
 echo "现在你可以使用上述信息配置客户端连接啦 🎉"
@@ -155,8 +155,8 @@ echo -e 复制以下证书内容到电脑上保存为 self-signed.crt 文件:
 cat /etc/hysteria/self-signed.crt
 echo "💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖"
 echo
-read -p "需要显示客户端具体配置内容,请按回车 或执行 cat /etc/hysteria/h2.yaml 命令查看💕"
+read -p "需要显示客户端具体配置内容,请按回车 或执行 cat /etc/hysteria/H2.yaml 命令查看💕"
 echo "---------------------------------------------------"
-echo -e 复制以下配置内容到电脑上保存为 h2.yaml 文件:
-cat /etc/hysteria/h2.yaml
+echo -e 复制以下配置内容到电脑上保存为 H2.yaml 文件:
+cat /etc/hysteria/H2.yaml
 echo "---------------------------------------------------"
