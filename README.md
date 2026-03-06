@@ -11,6 +11,8 @@
 
 如果安装部署遇到问题,请加入 [![Static Badge](https://img.shields.io/badge/Telegram-blue%3Flogo%3Dtelegram?logo=telegram&color=blue)](https://t.me/Amazing_George) https://t.me/Amazing_George
 
+当前群里人很少,请直接将问题发送到群里,看到会及时回复
+
 </div>
 
 ---
@@ -81,7 +83,7 @@
 
 ### ⚡ 域名模式 一键部署
 
-⚠️ **部署前请提前将域名解析指向你的 VPS 服务器**
+⚠️⚠️⚠️ **此模式部署前请提前将域名解析指向你的 VPS 服务器,否则会失败**
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/main/h2_domain.sh)
