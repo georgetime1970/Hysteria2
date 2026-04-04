@@ -79,8 +79,10 @@ auth:
 masquerade:
   type: proxy
   proxy:
-    url: https://www.aliyundrive.com/
+    url: https://www.alipan.com/
     rewriteHost: true
+  listenHTTPS: :443
+  forceHTTPS: true 
 EOF
 echo -e "${GREEN}------ 服务端配置文件创建成功! ------${NC}"
 
