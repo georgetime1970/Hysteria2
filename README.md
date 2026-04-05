@@ -168,19 +168,21 @@ sudo fail2ban-client status sshd
 查询客户端 ID 及其流量统计信息
 
 ```bash
-curl -H 'Authorization: secret' http://ip:9999/traffic
+curl -H "Authorization: secret" http://ip:9999/traffic
 ```
 
-查询在线客户端及其连接数
-
-```bash
-curl -H 'Authorization: secret' http://ip:9999/online
-```
-
-> 这是在客户端运行的命令,不是在服务器上运行的命令,而且要成功连接代理服务器后才能正常查询数据
->
 > - `secret` 替换为你设置的连接密码
 > - `ip` 替换为你的服务器 IP 或者域名
+
+返回示例:
+
+```json
+{ "user": { "tx": 24279564, "rx": 22961165 } }
+```
+
+- `tx` 表示客户端下载的流量总和,单位是字节(Byte)
+- `rx` 表示客户端上传的流量总和,单位是字节(Byte)
+- 计算: 24279564 字节(Byte) / 1024 / 1024 = 23.16 MiB (兆字节)
 
 ---
 
