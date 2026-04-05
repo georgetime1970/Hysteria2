@@ -77,11 +77,11 @@ auth:
   password: $PASSWORD
 
 trafficStats:
-  listen: :9999 
+  listen: :9999
   secret: $PASSWORD
 
 obfs:
-  type: salamander 
+  type: salamander
   salamander:
     password: $PASSWORD
 
@@ -91,7 +91,7 @@ masquerade:
     url: https://ruanyifeng.com/
     rewriteHost: true
   listenHTTPS: :443
-  forceHTTPS: true 
+  forceHTTPS: true
 EOF
 echo -e "${GREEN}------ 服务端配置文件创建成功! ------${NC}"
 
