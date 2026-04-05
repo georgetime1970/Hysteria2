@@ -34,7 +34,7 @@
 
 4. 🛡️ 俺给小白提供了 [fail2ban.sh](https://github.com/georgetime1970/h2/blob/main/fail2ban.sh) 脚本用于保护服务器免受 SSH 暴力破解攻击,可选择性安装
 
-5. 🧑‍💻 目前给服务端增加了更安全的 [obfs 混淆算法配置](https://v2.hysteria.network/docs/advanced/Full-Server-Config/#obfuscation), 以及 [流量统计 API](https://v2.hysteria.network/docs/advanced/Traffic-Stats-API/),可以查看当前连接的客户端 ID 及其流量统计信息.
+5. 🧑‍💻 目前给服务端增加了更安全的 [obfs 混淆算法配置](https://v2.hysteria.network/docs/advanced/Full-Server-Config/#obfuscation), 以及 [流量统计 API](https://v2.hysteria.network/docs/advanced/Traffic-Stats-API/),可以查看当前连接的客户端 ID 及服务器的流量统计信息.
 
 ---
 
@@ -165,7 +165,7 @@ sudo fail2ban-client status sshd
 
 #### 查询流量统计 API
 
-查询客户端 ID 及其流量统计信息
+查询客户端 ID 及服务器的流量统计信息
 
 ```bash
 curl -H "Authorization: secret" http://ip:9999/traffic
@@ -173,6 +173,7 @@ curl -H "Authorization: secret" http://ip:9999/traffic
 
 > - `secret` 替换为你设置的连接密码
 > - `ip` 替换为你的服务器 IP 或者域名
+> - 这个统计并不十分准确,请勿严格依赖
 
 返回示例:
 
@@ -180,8 +181,8 @@ curl -H "Authorization: secret" http://ip:9999/traffic
 { "user": { "tx": 24279564, "rx": 22961165 } }
 ```
 
-- `tx` 表示客户端下载的流量总和,单位是字节(Byte)
-- `rx` 表示客户端上传的流量总和,单位是字节(Byte)
+- `tx` 表示服务器发送的流量总和,单位是字节(Byte)
+- `rx` 表示服务器接收的流量总和,单位是字节(Byte)
 - 计算: 24279564 字节(Byte) / 1024 / 1024 = 23.16 MiB (兆字节)
 
 ---
