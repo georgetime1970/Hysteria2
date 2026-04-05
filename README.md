@@ -34,7 +34,7 @@
 
 4. 🛡️ 俺给小白提供了 [fail2ban.sh](https://github.com/georgetime1970/h2/blob/main/fail2ban.sh) 脚本用于保护服务器免受 SSH 暴力破解攻击,可选择性安装
 
-5. 🧑‍💻 目前给服务端增加了更安全的 [obfs 混淆算法配置](https://v2.hysteria.network/docs/advanced/Full-Server-Config/#obfuscation), 以及[流量统计 API](https://v2.hysteria.network/docs/advanced/Traffic-Stats-API/),可以查看当前连接的客户端 ID 及其流量统计信息.
+5. 🧑‍💻 目前给服务端增加了更安全的 [obfs 混淆算法配置](https://v2.hysteria.network/docs/advanced/Full-Server-Config/#obfuscation), 以及 [流量统计 API](https://v2.hysteria.network/docs/advanced/Traffic-Stats-API/),可以查看当前连接的客户端 ID 及其流量统计信息.
 
 ---
 
@@ -163,7 +163,24 @@ sudo journalctl --no-pager -e -u hysteria-server.service
 sudo fail2ban-client status sshd
 ```
 
-TODO: 其他常用命令后续补充
+#### 查询流量统计 API
+
+查询客户端 ID 及其流量统计信息
+
+```bash
+curl -H 'Authorization: secret' http://ip:9999/traffic
+```
+
+查询在线客户端及其连接数
+
+```bash
+curl -H 'Authorization: secret' http://ip:9999/online
+```
+
+> 这是在客户端运行的命令,不是在服务器上运行的命令,而且要成功连接代理服务器后才能正常查询数据
+>
+> - `secret` 替换为你设置的连接密码
+> - `ip` 替换为你的服务器 IP 或者域名
 
 ---
 
@@ -186,8 +203,6 @@ TODO: 其他常用命令后续补充
 - 然后就可以发送给 `Clash Verge` 电脑客户端或者 `ClashMeta for Android` 手机客户端使用了
 - `Clash Verge` 客户端本地导入配置教程, 请点击 👉 [教程](https://www.clashverge.dev/guide/profile.html#_4)
 
-TODO: 增加混淆算法的配置示例
-
 ```yaml
 proxies:
   - name: Hysteria2-Server
@@ -196,6 +211,9 @@ proxies:
     port: 443 <你设置的端口>
     password: your_password_here <你的密码>
     sni: 1.1.1.1 <你的服务器ip 或 域名 必须与 server字段 一致>
+    # obfs 混淆算法配置,可以增加连接的隐蔽性,对抗 DPI(深度包检测)
+    obfs: salamander
+    obfs-password: $PASSWORD
     # 是否跳过证书验证,默认验证证书,设置为true则跳过验证
     # 如果跳过验证,您的客户端将无法识别您的服务器是否被冒充
     skip-cert-verify: false

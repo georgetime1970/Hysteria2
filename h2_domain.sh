@@ -104,6 +104,8 @@ proxies:
     port: $PORT
     password: $PASSWORD
     sni: $DOMAIN
+    obfs: salamander
+    obfs-password: $PASSWORD
     skip-cert-verify: false
 
 proxy-groups:
@@ -172,6 +174,6 @@ echo "现在你可以使用上述信息配置客户端连接啦 🎉"
 echo
 read -p "需要显示客户端具体配置内容,请按回车💕"
 echo "---------------------------------------------------"
-echo -e 复制以下配置内容到电脑上保存为 H2.yaml 文件:
+echo -e 复制以下配置内容到电脑上保存为 H2.yaml 文件然后导入客户端:
 cat /etc/hysteria/H2.yaml
 echo "---------------------------------------------------"
