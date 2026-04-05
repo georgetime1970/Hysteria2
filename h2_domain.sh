@@ -13,8 +13,8 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 echo
-echo -e "${GREEN}欢迎使用 hysteria2 域名模式安装脚本${NC}"
-echo -e "${RED}!!安装之前请确认你已经解析好域名!!${NC}"
+echo -e "${GREEN}欢迎使用 hysteria2 域名模式 安装脚本${NC}"
+echo -e "${RED}!!!安装之前请确认你已经解析好域名,否则会失败!!!${NC}"
 echo "😎😎😎😎😎😎😎😎😎😎😎😎😎😎😎😎"
 echo
 
@@ -76,10 +76,19 @@ auth:
   type: password
   password: $PASSWORD
 
+trafficStats:
+  listen: :9999 
+  secret: $PASSWORD
+
+obfs:
+  type: salamander 
+  salamander:
+    password: $PASSWORD
+
 masquerade:
   type: proxy
   proxy:
-    url: https://www.alipan.com/
+    url: https://cloudflare.com/
     rewriteHost: true
   listenHTTPS: :443
   forceHTTPS: true 
@@ -128,6 +137,7 @@ echo -e "${GREEN}------ 客户端配置文件创建成功! ------${NC}"
 
 # 7. === 开放防火墙端口 ===
 ufw allow $PORT
+ufw allow 9999
 ufw status
 echo -e "${GREEN}------ 防火墙配置完成! ------${NC}"
 
@@ -138,7 +148,7 @@ systemctl enable hysteria-server.service
 
 # 9. === 检查服务状态 ===
 echo "检查服务状态..."
-sleep 2
+sleep 3
 systemctl status hysteria-server.service | head -n 10
 
 # 10. === 获取公网 IP ===
@@ -146,7 +156,7 @@ PUBLIC_IP=$(curl -s --max-time 5 https://ifconfig.me \
   || curl -s --max-time 5 https://api.ipify.org \
   || curl -s --max-time 5 https://ipinfo.io/ip \
   || curl -s --max-time 5 https://checkip.amazonaws.com) \
-  || 请自行查看你主机的IP
+  || echo "请自行查看你主机的IP"
 
 # 11. === 显示最终信息 ===
 echo -e "${GREEN}------ Hysteria 2 安装和配置完成! ------${NC}"

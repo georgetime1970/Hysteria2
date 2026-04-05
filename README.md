@@ -9,9 +9,11 @@
 
 **🐯 本项目设计初衷: 追求极致的速度和严格的隐私加密保护**
 
+💯 本项目是俺正在使用的方案,会一直维护更新
+
 如果安装部署遇到问题,请加入 [![Static Badge](https://img.shields.io/badge/Telegram-blue%3Flogo%3Dtelegram?logo=telegram&color=blue)](https://t.me/Amazing_George) https://t.me/Amazing_George
 
-当前群里人很少,请直接将问题发送到群里,看到会及时回复
+请直接将问题发送到群里,看到会及时回复
 
 </div>
 
@@ -32,6 +34,8 @@
 
 4. 🛡️ 俺给小白提供了 [fail2ban.sh](https://github.com/georgetime1970/h2/blob/main/fail2ban.sh) 脚本用于保护服务器免受 SSH 暴力破解攻击,可选择性安装
 
+5. 🧑‍💻 目前给服务端增加了更安全的 [obfs 混淆算法配置](https://v2.hysteria.network/docs/advanced/Full-Server-Config/#obfuscation), 以及[流量统计 API](https://v2.hysteria.network/docs/advanced/Traffic-Stats-API/),可以查看当前连接的客户端 ID 及其流量统计信息.
+
 ---
 
 ## 💡 脚本说明
@@ -43,7 +47,7 @@
 **使用域名的自动获取证书模式**
 
 - 需要注册域名,解析域名;
-- 使用 [cloludflare](https://dash.cloudflare.com/) 进行域名解析时,本脚本可以自动获取证书并自动续期;如果你使用的其他域名解析商,请查看官方支持自动配置证书的服务商:👉[查看此处](https://v2.hysteria.network/zh/docs/advanced/ACME-DNS-Config/),然后修改[h2_domain.sh](https://github.com/georgetime1970/h2/blob/main/h2_domain.sh)对应的第5步配置即可
+- 使用 [cloludflare](https://dash.cloudflare.com/) 进行域名解析时,本脚本可以自动获取证书并自动续期;如果你使用的其他域名解析商,请查看官方支持自动配置证书的服务商:👉[查看此处](https://v2.hysteria.network/zh/docs/advanced/ACME-DNS-Config/);然后修改[h2_domain.sh](https://github.com/georgetime1970/h2/blob/main/h2_domain.sh)对应的第5步配置里的`acme`部分即可
 
 ### 非域名模式
 
@@ -61,9 +65,9 @@
 >
 > 1️⃣ 注册域名可使用 [DigitalPlat Domain](https://domain.digitalplat.org/),免费的域名注册服务,可获得至少一个免费二级域名
 >
-> 2️⃣ 你需要一台能访问外网的服务器,俺使用的 [vultr](https://www.vultr.com/),喜欢他的按量付费模式,不限宽带,5$每月2T流量(根本用不完),支持支付宝付款(大陆地区实测最好选择日本,洛杉矶这2个地区,体验感几乎和直接使用国内网络一致)
+> 2️⃣ 你需要一台能访问外网的服务器,俺使用的 [vultr](https://www.vultr.com/),喜欢他的不限宽带,5$每月2T流量(带宽大,流量也根本用不完),支持支付宝付款(大陆地区实测选择日本,洛杉矶这2个地区(俺长期使用洛杉矶),体验感几乎和直接使用国内网络一致)
 >
-> 3️⃣ 域名和非域名模式选择一种安装即可,如果您的地区审查不严,非域名模式也够用
+> 3️⃣ 域名和非域名模式选择一种安装即可,如果您的地区审查不严,非域名模式也够用,目前默认开启了 obfs 混淆算法,对抗DPI(深度包检测)也不错了
 >
 > 4️⃣ 安装时需设置服务器 `端口`, `443`、`8443`、`4433`、`8080`、`8888` 都可以,推荐使用`443`端口
 
@@ -159,6 +163,8 @@ sudo journalctl --no-pager -e -u hysteria-server.service
 sudo fail2ban-client status sshd
 ```
 
+TODO: 其他常用命令后续补充
+
 ---
 
 ## 📱 客户端软件下载
@@ -179,6 +185,8 @@ sudo fail2ban-client status sshd
 - 将 `sni` 字段改为你自己的 `服务器IP`或`域名`,必须与`server` 字段一致
 - 然后就可以发送给 `Clash Verge` 电脑客户端或者 `ClashMeta for Android` 手机客户端使用了
 - `Clash Verge` 客户端本地导入配置教程, 请点击 👉 [教程](https://www.clashverge.dev/guide/profile.html#_4)
+
+TODO: 增加混淆算法的配置示例
 
 ```yaml
 proxies:
@@ -223,6 +231,24 @@ rules:
 ### 1. cloudflare_api_token 如何获取?
 
 登录 [cloudflare](https://dash.cloudflare.com/), 管理账户 → 账户 API 令牌 → 创建令牌 → 编辑区域 DNS ,根据提示继续创建即可获得 API
+
+### 2. 安装成功后建议手动检查hysteria2 服务状态
+
+```bash
+sudo systemctl status hysteria-server.service
+```
+
+- 如果失败了,先重试重启命令`sudo systemctl restart hysteria-server.service`
+- 如果还是无法启动,请查看日志`sudo journalctl --no-pager -e -u hysteria-server.service` ,根据提示解决问题(丢给AI),如果无法解决请加入群里寻求帮助
+
+### 3. 客户端连接不上服务器?
+
+1. 端口被封: 这是针对服务器的
+   - 有可能是服务器的端口被封了,可以尝试更换一个端口重新安装部署
+   - 或者换一台服务器试试
+
+2. 运营商阻断了UDP访问: 这是针对家庭网络的
+   - 我实际遇到过,在下载了100G左右的模型几天后,就突然无法正常连接到代理服务器,这是针对的家庭网络ip的阻断,换服务器无法解决问题,重启光猫就可以了(原因是:重启后你的ip地址变了,封锁就无效了)
 
 ## 🔐 VPN 安全性检测指南
 
