@@ -23,7 +23,14 @@ PORT=${PORT:-443}
 read -p "请输入连接密码（留空将使用默认密码: 88888888）: " PASSWORD
 PASSWORD=${PASSWORD:-88888888}
 
-# 2. === 修改 /etc/resolv.conf 强制系统使用IPv4 进行解析 ===
+# 2. === 获取公网 IP ===
+PUBLIC_IP=$(curl -s --max-time 5 https://ifconfig.me \
+  || curl -s --max-time 5 https://api.ipify.org \
+  || curl -s --max-time 5 https://ipinfo.io/ip \
+  || curl -s --max-time 5 https://checkip.amazonaws.com) \
+  || echo "请自行查看你主机的IP"
+
+# 3. === 修改 /etc/resolv.conf 强制系统使用IPv4 进行解析 ===
 cat > /etc/resolv.conf << EOF
 nameserver 1.1.1.1
 nameserver 1.0.0.1
@@ -32,30 +39,30 @@ nameserver 8.8.4.4
 EOF
 echo -e "${GREEN}------ resolv.conf配置文件修改成功 ------${NC}"
 
-# 3. === 防止系统重启修改 ===
+# 4. === 防止系统重启修改 ===
 chattr +i /etc/resolv.conf
 
-# 4. === 执行官方安装脚本 ===
+# 5. === 执行官方安装脚本 ===
 bash <(curl -fsSL https://get.hy2.sh/) || {
     echo -e "${RED}Hysteria 安装失败，请检查网络连接${NC}"
     exit 1
 }
 echo -e "${GREEN}Hysteria 2 服务已成功安装,进入配置${NC}"
 
-# 5. === 创建证书目录 ===
+# 6. === 创建证书目录 ===
 mkdir -p /etc/hysteria
-# 6. === 生成365天的自签名证书 ===
+# 7. === 生成365天的自签名证书 ===
 openssl req -x509 -newkey rsa:2048 -keyout /etc/hysteria/self-signed.key -out /etc/hysteria/self-signed.crt -days 365 -nodes -subj "/CN=$PUBLIC_IP" -addext "subjectAltName=IP:$PUBLIC_IP" || {
     echo -e "${RED}证书生成失败${NC}"
     exit 1
 }
 echo -e "${GREEN}自签证书创建成功${NC}"
 
-# 7. === 设置文件权限 ===
+# 8. === 设置文件权限 ===
 chmod 644 /etc/hysteria/self-signed.crt
 chmod 644 /etc/hysteria/self-signed.key
 
-# 8. === 创建服务端配置文件 ===
+# 9. === 创建服务端配置文件 ===
 cat > /etc/hysteria/config.yaml << EOF
 listen: :$PORT
 
@@ -86,7 +93,7 @@ masquerade:
 EOF
 echo -e "${GREEN}服务端配置文件创建成功${NC}"
 
-# 9. === 创建客户端配置文件 ===
+# 10. === 创建客户端配置文件 ===
 cat > /etc/hysteria/H2.yaml << EOF
 proxies:
   - name: $PUBLIC_IP
@@ -128,28 +135,21 @@ rules:
 EOF
 echo -e "${GREEN}客户端配置文件创建成功${NC}"
 
-# 10. === 开放防火墙端口 ===
+# 11. === 开放防火墙端口 ===
 ufw allow $PORT
 ufw allow 9999
 ufw status
 echo -e "${GREEN}防火墙完成！${NC}"
 
-# 11. === 启动服务并设置开机自启 ===
+# 12. === 启动服务并设置开机自启 ===
 echo "正在启动启 Hysteria 服务..."
 systemctl start hysteria-server.service
 systemctl enable hysteria-server.service
 
-# 12. === 检查服务状态 ===
+# 13. === 检查服务状态 ===
 echo "检查服务状态..."
 sleep 3
 systemctl status hysteria-server.service | head -n 10
-
-# 13. === 获取公网 IP ===
-PUBLIC_IP=$(curl -s --max-time 5 https://ifconfig.me \
-  || curl -s --max-time 5 https://api.ipify.org \
-  || curl -s --max-time 5 https://ipinfo.io/ip \
-  || curl -s --max-time 5 https://checkip.amazonaws.com) \
-  || echo "请自行查看你主机的IP"
 
 # 14. === 显示最终信息 ===
 echo -e "${GREEN}Hysteria 2 安装和配置完成！${NC}"
