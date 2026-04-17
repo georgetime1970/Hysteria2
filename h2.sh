@@ -86,7 +86,7 @@ obfs:
 masquerade:
   type: proxy
   proxy:
-    url: https:// ruanyifeng.com/
+    url: https://ruanyifeng.com/
     rewriteHost: true
   listenHTTPS: :443
   forceHTTPS: true
