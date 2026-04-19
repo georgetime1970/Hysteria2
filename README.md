@@ -285,6 +285,7 @@ sudo systemctl status hysteria-server.service
 ### ✅ 2. WebRTC 泄露检测
 
 🔍 工具：[WebRTC 检测](https://browserleaks.com/webrtc)
+
 `WebRTC Leak Test`字段显示为`✔No Leak`,代表没有泄露.
 
 🔧 解决方案：
@@ -298,7 +299,51 @@ sudo systemctl status hysteria-server.service
 
 🔍 工具：[DNS 检测](https://browserleaks.com/dns)
 
-🔧 解决方案：
+如果出现很多中国的 DNS 服务器, 就说明出现了 `DNS 泄露`,这些DNS服务器往往是运营商提供的,他们会知道你访问了哪些网站,甚至可能会被用来进行流量分析和监控.
+
+**🔧 解决方案1：**
+
+- 在 `Clash Verge` → `设置` →`DNS覆写` →`点击小齿轮` →`高级`,删除所有配置,粘贴下面的配置,配置后开启 `DNS覆写` 即可,这样就不会出现 `DNS 泄露` 了:
+
+```yaml
+dns:
+  enable: true
+  listen: ":53"
+  enhanced-mode: "fake-ip"
+  fake-ip-range: "198.18.0.1/16"
+  fake-ip-filter-mode: "blacklist"
+  prefer-h3: true
+  respect-rules: true
+  use-hosts: false
+  use-system-hosts: false
+  ipv6: true
+  fake-ip-filter: []
+  default-nameserver:
+    - "8.8.8.8"
+    - "1.1.1.1"
+  nameserver:
+    - "8.8.8.8"
+    - "1.1.1.1"
+  direct-nameserver-follow-policy: false
+  fallback-filter:
+    geoip: true
+    geoip-code: "CN"
+    ipcidr:
+      - "240.0.0.0/4"
+      - "0.0.0.0/32"
+    domain:
+      - "+.google.com"
+      - "+.facebook.com"
+      - "+.youtube.com"
+  fallback: []
+  proxy-server-nameserver:
+    - "https://doh.pub/dns-query"
+    - "https://dns.alidns.com/dns-query"
+    - "tls://223.5.5.5"
+  direct-nameserver: []
+```
+
+**🔧 解决方案2：**
 
 - 启用「`禁用智能多宿主名称解析`」：`Win + R` → `gpedit.msc` → `计算机配置` → `管理模板` → `网络` → `DNS 客户端`
 - 在 `Clash Verge` 电脑端打开 `TUN模式` , 并开启 `严格路由` 模式 , 这样当你使用 **`全局模式`** 时,就不会出现 `DNS` 泄露了
