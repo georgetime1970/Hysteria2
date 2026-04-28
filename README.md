@@ -250,11 +250,11 @@ rules:
 
 这里会列出常见的安装问题,新的问题会整理在这里,不断完善中
 
-### 1. cloudflare_api_token 如何获取?
+### 1.cloudflare_api_token 如何获取?
 
 登录 [cloudflare](https://dash.cloudflare.com/), 管理账户 → 账户 API 令牌 → 创建令牌 → 编辑区域 DNS ,根据提示继续创建即可获得 API
 
-### 2. 安装成功后建议手动检查hysteria2 服务状态
+### 2.安装成功后建议手动检查hysteria2 服务状态
 
 ```bash
 sudo systemctl status hysteria-server.service
@@ -263,7 +263,7 @@ sudo systemctl status hysteria-server.service
 - 如果失败了,先重试重启命令`sudo systemctl restart hysteria-server.service`
 - 如果还是无法启动,请查看日志`sudo journalctl --no-pager -e -u hysteria-server.service` ,根据提示解决问题(丢给AI),如果无法解决请加入群里寻求帮助
 
-### 3. 客户端连接不上服务器?
+### 3.客户端连接不上服务器?
 
 1. 端口被封: 这是针对服务器的
    - 有可能是服务器的端口被封了,可以尝试更换一个端口重新安装部署
@@ -274,7 +274,7 @@ sudo systemctl status hysteria-server.service
 
 ## 🔐 VPN 安全性检测指南
 
-### ✅ 1. IP 地址泄露检测
+### ✅ 1.IP 地址泄露检测
 
 🔍 工具：[IP 检测](https://browserleaks.com/ip)
 
@@ -282,7 +282,7 @@ sudo systemctl status hysteria-server.service
 
 ---
 
-### ✅ 2. WebRTC 泄露检测
+### ✅ 2.WebRTC 泄露检测
 
 🔍 工具：[WebRTC 检测](https://browserleaks.com/webrtc)
 
@@ -299,53 +299,13 @@ sudo systemctl status hysteria-server.service
 
 🔍 工具：[DNS 检测](https://browserleaks.com/dns)
 
-如果出现很多中国的 DNS 服务器, 就说明出现了 `DNS 泄露`,这些DNS服务器往往是运营商提供的,他们会知道你访问了哪些网站,甚至可能会被用来进行流量分析和监控.
+如果出现很多中国的 DNS 服务器, 不一定是出现了 `DNS 泄露`,但也有可能这些DNS服务器是运营商提供的,他们会知道你访问了哪些网站,甚至可能会被用来进行流量分析和监控.
 
-**🔧 解决方案1：**
+如果你追求极致的隐私保护,请按照下面的解决方案进行设置,以防止 DNS 泄露.其原理是将 DNS 请求也通过 VPN 进行转发,而不是直接发送到 ISP 的 DNS 服务器.
 
-- 在 `Clash Verge` → `设置` →`DNS覆写` →`点击小齿轮` →`高级`,删除所有配置,粘贴下面的配置,配置后开启 `DNS覆写` 即可,这样就不会出现 `DNS 泄露` 了:
+**🔧 解决方案：**
 
-```yaml
-dns:
-  enable: true
-  listen: ":53"
-  enhanced-mode: "fake-ip"
-  fake-ip-range: "198.18.0.1/16"
-  fake-ip-filter-mode: "blacklist"
-  prefer-h3: true
-  respect-rules: true
-  use-hosts: false
-  use-system-hosts: false
-  ipv6: true
-  fake-ip-filter: []
-  default-nameserver:
-    - "8.8.8.8"
-    - "1.1.1.1"
-  nameserver:
-    - "8.8.8.8"
-    - "1.1.1.1"
-  direct-nameserver-follow-policy: false
-  fallback-filter:
-    geoip: true
-    geoip-code: "CN"
-    ipcidr:
-      - "240.0.0.0/4"
-      - "0.0.0.0/32"
-    domain:
-      - "+.google.com"
-      - "+.facebook.com"
-      - "+.youtube.com"
-  fallback: []
-  proxy-server-nameserver:
-    - "https://doh.pub/dns-query"
-    - "https://dns.alidns.com/dns-query"
-    - "tls://223.5.5.5"
-  direct-nameserver: []
-```
-
-**🔧 解决方案2：**
-
-- 启用「`禁用智能多宿主名称解析`」：`Win + R` → `gpedit.msc` → `计算机配置` → `管理模板` → `网络` → `DNS 客户端`
+- 启用「`禁用智能多宿主名称解析`」：`Win + R` → `gpedit.msc` → `计算机配置` → `管理模板` → `网络` → `DNS 客户端` → 双击「`禁用智能多宿主名称解析`」→ 选择「`已禁用`」→ 点击「`应用`」和「`确定`」
 - 在 `Clash Verge` 电脑端打开 `TUN模式` , 并开启 `严格路由` 模式 , 这样当你使用 **`全局模式`** 时,就不会出现 `DNS` 泄露了
 
 ---
@@ -355,7 +315,7 @@ dns:
 🔍 工具：[IP 检测](https://browserleaks.com/ip)
 查看`IPv6 Address`字段,显示 为`n/a`即表示没有检测到 IPv6,这意味着只有 IPv4 流量可用，并且您的真实位置不能通过 IPv6 泄漏.
 
-🔧 解决方案：电脑端禁用 IPv6：
+**🔧 解决方案：** 电脑端禁用 IPv6：
 
 控制面板 → 网络和 Internet → 网络和共享中心 → 更改适配器设置 → 选中网卡,右键`属性` → 取消勾选「`Internet 协议版本 6（TCP/IPv6）`」
 
