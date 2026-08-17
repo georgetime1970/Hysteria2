@@ -158,10 +158,28 @@ echo "正在启动启 Hysteria 服务..."
 systemctl start hysteria-server.service
 systemctl enable hysteria-server.service
 
-# 13. === 检查服务状态 ===
+# 13. === 检查服务状态,最多等待约15秒 ===
 echo "检查服务状态..."
-sleep 3
-systemctl status hysteria-server.service | head -n 10
+HY2_OK=false
+for i in $(seq 1 15); do
+    if systemctl is-active --quiet hysteria-server.service; then
+        HY2_OK=true
+        break
+    fi
+    if systemctl is-failed --quiet hysteria-server.service; then
+        break
+    fi
+    sleep 1
+done
+
+if [ "$HY2_OK" = true ]; then
+    echo -e "${GREEN}Hysteria 服务运行正常${NC}"
+    systemctl status hysteria-server.service --no-pager | head -n 10
+else
+    echo -e "${RED}Hysteria 服务启动失败,最近错误日志如下:${NC}"
+    journalctl -u hysteria-server.service -n 20 --no-pager
+    echo -e "${RED}请根据以上错误排查,修复后执行: systemctl restart hysteria-server.service${NC}"
+fi
 
 # 14. === 选装 fail2ban,防止 SSH 端口被暴力破解 ===
 read -p "是否选装 fail2ban 防 SSH 爆破? 推荐新服务器安装 [Y/n]: " INSTALL_FAIL2BAN
@@ -181,6 +199,8 @@ echo -e "🔐 连接密码:  ${GREEN}$PASSWORD${NC}"
 echo -e "📄 服务端配置:  /etc/hysteria/config.yaml"
 echo -e "📄 客户端配置:  /etc/hysteria/H2.yaml"
 echo -e "🔏 证书路径:  /etc/hysteria/self-signed.crt"
+echo -e "📥 电脑本机下载配置(PowerShell/终端执行):"
+echo -e "   ${GREEN}scp root@$PUBLIC_IP:/etc/hysteria/H2.yaml ./H2.yaml${NC}"
 echo "--------------------------------------------"
 echo "现在你可以使用上述信息配置客户端连接啦 🎉"
 echo

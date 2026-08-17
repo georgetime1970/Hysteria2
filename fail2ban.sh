@@ -61,6 +61,16 @@ fi
 # 启动并设置开机自启 fail2ban 服务
 systemctl enable --now fail2ban
 
+# 等待 fail2ban socket 就绪,服务刚启动时客户端可能还连不上
+FAIL2BAN_READY=false
+for i in $(seq 1 10); do
+    if fail2ban-client ping >/dev/null 2>&1; then
+        FAIL2BAN_READY=true
+        break
+    fi
+    sleep 1
+done
+
 # 查看Fail2ban状态
 echo
 echo -e "${GREEN}检查fail2ban状态  显示 Active: active (running) 即为成功${NC}"
@@ -70,4 +80,8 @@ systemctl status fail2ban | head -n 10
 echo
 echo -e "${GREEN}✅ fail2ban 已成功安装并配置完成！${NC}"
 echo -e "${GREEN}使用命令 sudo fail2ban-client status sshd 即可查看以下封禁情况${NC}"
-fail2ban-client status sshd
+if [ "$FAIL2BAN_READY" = true ]; then
+    fail2ban-client status sshd
+else
+    echo -e "${RED}socket 尚未就绪,请稍后手动执行: sudo fail2ban-client status sshd${NC}"
+fi
