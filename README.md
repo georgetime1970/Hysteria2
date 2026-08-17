@@ -151,7 +151,7 @@ sudo systemctl status hysteria-server.service
 
 #### 查询 hysteria2 服务端日志
 
-如果 hysteria2 启动失败可查看原因
+如果 hysteria2 启动失败可查看原因,看不懂问AI,如果还是解决不了,请加入群里寻求帮助
 
 ```bash
 sudo journalctl --no-pager -e -u hysteria-server.service

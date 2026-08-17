@@ -20,8 +20,20 @@ echo
 read -p "请输入要使用的端口号（默认 443）: " PORT
 PORT=${PORT:-443}
 
-read -p "请输入连接密码（留空将使用默认密码: 88888888）: " PASSWORD
-PASSWORD=${PASSWORD:-88888888}
+# 校验连接密码: 以0开头的纯数字会被 YAML 解析为八进制数字,导致服务启动失败
+while true; do
+    read -p "请输入连接密码（留空将使用默认密码: 88888888）: " PASSWORD
+    PASSWORD=${PASSWORD:-88888888}
+    if [[ "$PASSWORD" =~ ^0[0-9]+$ ]]; then
+        echo -e "${RED}密码不能以0开头的纯数字,请使用字母数字混合密码,例如 pass${PASSWORD} 或 ${PASSWORD}x${NC}"
+        continue
+    fi
+    if [ ${#PASSWORD} -lt 4 ]; then
+        echo -e "${RED}密码长度至少4个字符,请重新输入${NC}"
+        continue
+    fi
+    break
+done
 
 # 2. === 获取公网 IP ===
 PUBLIC_IP=$(curl -s --max-time 5 https://ifconfig.me \
@@ -151,7 +163,16 @@ echo "检查服务状态..."
 sleep 3
 systemctl status hysteria-server.service | head -n 10
 
-# 14. === 显示最终信息 ===
+# 14. === 选装 fail2ban,防止 SSH 端口被暴力破解 ===
+read -p "是否选装 fail2ban 防 SSH 爆破? 推荐新服务器安装 [Y/n]: " INSTALL_FAIL2BAN
+if [[ -z "$INSTALL_FAIL2BAN" || "$INSTALL_FAIL2BAN" =~ ^[Yy]$ ]]; then
+    bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/main/fail2ban.sh) || {
+        echo -e "${RED}fail2ban 安装失败,可稍后手动执行:${NC}"
+        echo "bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/main/fail2ban.sh)"
+    }
+fi
+
+# 15. === 显示最终信息 ===
 echo -e "${GREEN}Hysteria 2 安装和配置完成！${NC}"
 echo "--------------------------------------------"
 echo -e "🌐 服务器IP:  ${GREEN}$PUBLIC_IP${NC}"
