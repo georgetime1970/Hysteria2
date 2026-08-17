@@ -133,9 +133,9 @@ bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/main/fail2
 常用命令:
 
 ```bash
-sudo systemctl status h2-panel.service
-sudo systemctl restart h2-panel.service
-sudo journalctl --no-pager -e -u h2-panel.service
+sudo systemctl status h2-panel.service            # 查看面板运行状态
+sudo systemctl restart h2-panel.service           # 重启面板
+sudo journalctl --no-pager -e -u h2-panel.service # 查看面板日志
 ```
 
 ---
@@ -145,9 +145,9 @@ sudo journalctl --no-pager -e -u h2-panel.service
 #### 放开端口并检查防火墙
 
 ```bash
-sudo ufw allow 443
-sudo ufw allow 18080/tcp
-sudo ufw status
+sudo ufw allow 443       # 放开443端口
+sudo ufw allow 18080/tcp # 放开18080端口
+sudo ufw status          # 查看防火墙状态
 ```
 
 #### 启动 hysteria2 服务
@@ -201,7 +201,10 @@ curl -H "Authorization: secret" http://127.0.0.1:9999/traffic
 ```
 
 > - `secret` 替换为你设置的连接密码
-> - 这个统计并不十分准确,请勿严格依赖
+> - 这个统计的是 **Hysteria 客户端 ↔ 本机** 这一段的代理流量,不是网卡上的全部流量,也不是 VPS 账单流量
+> - 你访问网站时,服务器还要再和网站传一份数据,账单大约会是面板数字的 **2 倍**;协议开销也不会算进去
+> - 不要用它判断套餐有没有用超,要对齐账单请看云厂商后台
+> - 重启 Hysteria 后计数会从 0 开始
 
 返回示例:
 
@@ -209,8 +212,8 @@ curl -H "Authorization: secret" http://127.0.0.1:9999/traffic
 { "user": { "tx": 24279564, "rx": 22961165 } }
 ```
 
-- `tx` 表示服务器发送的流量总和,单位是字节(Byte)
-- `rx` 表示服务器接收的流量总和,单位是字节(Byte)
+- `tx` 表示客户端上传到服务器的流量,单位是字节(Byte)
+- `rx` 表示客户端从服务器下载的流量,单位是字节(Byte)
 - 计算: 24279564 字节(Byte) / 1024 / 1024 = 23.16 MiB (兆字节)
 
 ---
