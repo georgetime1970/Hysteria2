@@ -270,6 +270,17 @@ class PanelState:
         """对外打印/页面使用的协议"""
         return "https" if self.use_tls else "http"
 
+    def sub_filename(self):
+        """Clash 导入订阅时用作配置名称,用域名或 IP,避免显示成 h2.yaml"""
+        host = self.server_host or "h2"
+        safe = []
+        for ch in host:
+            if ch.isalnum() or ch in ".-_":
+                safe.append(ch)
+            else:
+                safe.append("_")
+        return "".join(safe) + ".yaml"
+
     def sub_url(self):
         """Clash 订阅完整 URL"""
         return "%s://%s:%s/%s/h2.yaml" % (
