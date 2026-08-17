@@ -34,7 +34,7 @@
 
 4. 🛡️ 俺给小白提供了 [fail2ban.sh](https://github.com/georgetime1970/h2/blob/main/fail2ban.sh) 脚本用于保护服务器免受 SSH 暴力破解攻击,可选择性安装
 
-5. 🧑‍💻 目前给服务端增加了更安全的 [obfs 混淆算法配置](https://v2.hysteria.network/docs/advanced/Full-Server-Config/#obfuscation), 以及 [流量统计 API](https://v2.hysteria.network/docs/advanced/Traffic-Stats-API/),可以查看当前连接的客户端 ID 及服务器的流量统计信息.
+5. 🧑‍💻 目前给服务端增加了更安全的 [obfs 混淆算法配置](https://v2.hysteria.network/docs/advanced/Full-Server-Config/#obfuscation)、常驻 [信息面板](#信息面板)(订阅链接 / 二维码 / 流量),以及本机 [流量统计 API](https://v2.hysteria.network/docs/advanced/Traffic-Stats-API/)
 
 ---
 
@@ -56,9 +56,11 @@
 - 直接使用 ip 进行连接,伪装性不如域名好,但是不影响长期使用,适用于审查不是很严的地方
 - 这种模式下您发送的数据依旧是加密的,仅是伪装性不如域名模式,毕竟谁没事每天大流量访问一个IP呢?
 
+> 注意: 域名模式如果操作有难度,优先尝试非域名模式,先体验一下 hysteria2 的速度和稳定性,如果体验感不错,再尝试域名模式,域名模式的操作难度比非域名模式要高一些,但是安全性更高,证书自动续期,不需要手动续期,而且证书是自动获取的,不需要手动配置证书.
+
 ### 🟢 推荐使用`域名模式`
 
-- 非域名模式需要每个设备都安装证书才能最安全的使用,而域名模式则不需要;
+- 非域名模式最安全的使用方式是每个设备都安装证书才能最安全的使用,而域名模式则不需要;
 - 如果要在设备上使用非域名模式,又不想安装证书则可将客户端配置中的`skip-cert-verify: false` 设置为`true`即可正常使用(无需修改服务端配置),您发送的数据依旧是加密的,只是如果有人伪造您的服务器,您的客户端将无法识别这个冒牌货.
 
 > ⚠️ **温馨提示**：
@@ -112,12 +114,39 @@ bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/main/fail2
 
 ---
 
+## 🖥️ 信息面板
+
+安装完成后会自动启动常驻面板,默认端口 `18080`(开机自启)。
+
+- 域名模式打开: `https://你的域名:18080/`
+- 非域名模式打开: `http://服务器IP:18080/`
+- 浏览器弹出登录框时,**用户名随意**,密码填安装时设置的**连接密码**
+- 面板可查看: 运行状态、上行/下行流量(单位 MiB)、服务器地址、端口、密码
+- 提供 **Clash 订阅链接** 和 **二维码**,手机扫码或把链接填进 Clash Verge / ClashMeta 即可
+- 面板可直接下载官方最新客户端(Windows / 安卓 / Linux deb),由服务器代为从 GitHub 获取,**无需 VPN 即可安装**,解决没有节点时下不了客户端的问题;首次点击可能需等待
+- 订阅路径含随机 token,不要发到群里;云厂商安全组需要放行 `18080/tcp`
+
+<!-- 将面板截图保存为 docs/panel.png -->
+
+![信息面板截图](docs/panel.png)
+
+常用命令:
+
+```bash
+sudo systemctl status h2-panel.service
+sudo systemctl restart h2-panel.service
+sudo journalctl --no-pager -e -u h2-panel.service
+```
+
+---
+
 ### 服务器常用命令
 
 #### 放开端口并检查防火墙
 
 ```bash
 sudo ufw allow 443
+sudo ufw allow 18080/tcp
 sudo ufw status
 ```
 
@@ -165,14 +194,13 @@ sudo fail2ban-client status sshd
 
 #### 查询流量统计 API
 
-查询客户端 ID 及服务器的流量统计信息
+流量已显示在 [信息面板](#信息面板) 中(单位 MiB)。接口只监听本机,不再对公网开放:
 
 ```bash
-curl -H "Authorization: secret" http://ip:9999/traffic
+curl -H "Authorization: secret" http://127.0.0.1:9999/traffic
 ```
 
 > - `secret` 替换为你设置的连接密码
-> - `ip` 替换为你的服务器 IP 或者域名
 > - 这个统计并不十分准确,请勿严格依赖
 
 返回示例:
@@ -196,9 +224,10 @@ curl -H "Authorization: secret" http://ip:9999/traffic
 
 ## 📄 客户端 YAML 配置文件示例
 
-- 将以下内容复制保存为 `H2.yaml`,
+- 将以下内容复制保存为 `h2.yaml`,
+- 或安装完成后打开信息面板,把订阅链接填入 Clash Verge / ClashMeta,也可扫描二维码;
 - 或服务器端安装完成后,按下回车键会获得对应的完整配置,直接复制使用即可;
-- 或直接下载本项目的 [H2.yaml](https://github.com/georgetime1970/h2/blob/main/H2.yaml) 文件进行修改
+- 或直接下载本项目的 [h2.yaml](https://github.com/georgetime1970/h2/blob/main/h2.yaml) 文件进行修改
 - 将 `server` 字段改为你自己的 `服务器IP`或`域名`
 - 将 `port` 字段改为你自己的 `端口号`
 - 将 `password` 字段改为你自己的 `密码`

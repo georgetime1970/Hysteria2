@@ -11,23 +11,101 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
+# 面板监听端口
+PANEL_PORT=18080
+# 面板程序与 unit 的下载地址
+PANEL_RAW="https://raw.githubusercontent.com/georgetime1970/h2/main"
+
+# 将 YAML 值写成双引号字符串,避免被解析成数字或布尔值
+yaml_quote() {
+    local s=$1
+    s=${s//\\/\\\\}
+    s=${s//\"/\\\"}
+    printf '"%s"' "$s"
+}
+
+# 若 ufw 未安装或未启用则处理
+ensure_ufw() {
+    if ! command -v ufw >/dev/null 2>&1; then
+        apt update
+        apt install -y ufw
+    fi
+    if ! ufw status 2>/dev/null | grep -q "Status: active"; then
+        echo "正在启用 ufw 防火墙..."
+        ufw --force enable
+    fi
+}
+
+# 安装并启动常驻信息面板(非域名模式使用 HTTP,避免自签证书告警)
+# $1 对外主机名(公网 IP)
+install_h2_panel() {
+    local host="$1"
+    echo "正在安装信息面板..."
+    apt update
+    apt install -y python3 qrencode || {
+        echo -e "${RED}python3 或 qrencode 安装失败,跳过信息面板${NC}"
+        return 1
+    }
+    curl -fsSL "$PANEL_RAW/h2-panel.py" -o /usr/local/bin/h2-panel.py || {
+        echo -e "${RED}下载 h2-panel.py 失败${NC}"
+        return 1
+    }
+    curl -fsSL "$PANEL_RAW/h2-panel.service" -o /etc/systemd/system/h2-panel.service || {
+        echo -e "${RED}下载 h2-panel.service 失败${NC}"
+        return 1
+    }
+    chmod 644 /usr/local/bin/h2-panel.py
+
+    local token
+    token=$(cat /proc/sys/kernel/random/uuid)
+
+    cat > /etc/hysteria/panel.env << EOF
+PANEL_PORT=$PANEL_PORT
+PANEL_PASSWORD=$PASSWORD
+SUB_TOKEN=$token
+H2_YAML=/etc/hysteria/h2.yaml
+SERVER_HOST=$host
+SERVER_PORT=$PORT
+TRAFFIC_URL=http://127.0.0.1:9999/traffic
+USE_TLS=0
+CERT_FILE=
+KEY_FILE=
+EOF
+    chmod 600 /etc/hysteria/panel.env
+
+    ufw allow "$PANEL_PORT"/tcp >/dev/null
+    systemctl daemon-reload
+    systemctl enable --now h2-panel.service
+
+    PANEL_URL="http://$host:$PANEL_PORT/"
+    SUB_URL="http://$host:$PANEL_PORT/$token/h2.yaml"
+    echo -e "${GREEN}信息面板: ${PANEL_URL}${NC}"
+    echo "浏览器打开后,用户名随意,密码为连接密码"
+    echo -e "${GREEN}订阅链接: ${SUB_URL}${NC}"
+    if command -v qrencode >/dev/null 2>&1; then
+        echo "手机可扫描下面的二维码导入订阅:"
+        qrencode -t ansiutf8 "$SUB_URL"
+    fi
+}
+
 echo
 echo -e "${GREEN}欢迎使用 hysteria2 非域名模式 安装脚本 ${NC}"
 echo "😎😎😎😎😎😎😎😎😎😎😎😎😎😎😎😎"
 echo
 
 # 1. === 获取用户输入的端口和密码 ===
-read -p "请输入要使用的端口号（默认 443）: " PORT
-PORT=${PORT:-443}
+while true; do
+    read -p "请输入要使用的端口号（默认 443）: " PORT
+    PORT=${PORT:-443}
+    if [[ "$PORT" =~ ^[0-9]+$ ]] && [ "$PORT" -ge 1 ] && [ "$PORT" -le 65535 ]; then
+        break
+    fi
+    echo -e "${RED}端口必须是 1 到 65535 的数字${NC}"
+done
 
-# 校验连接密码: 以0开头的纯数字会被 YAML 解析为八进制数字,导致服务启动失败
 while true; do
     read -p "请输入连接密码（留空将使用默认密码: 88888888）: " PASSWORD
     PASSWORD=${PASSWORD:-88888888}
-    if [[ "$PASSWORD" =~ ^0[0-9]+$ ]]; then
-        echo -e "${RED}密码不能以0开头的纯数字,请使用字母数字混合密码,例如 pass${PASSWORD} 或 ${PASSWORD}x${NC}"
-        continue
-    fi
     if [ ${#PASSWORD} -lt 4 ]; then
         echo -e "${RED}密码长度至少4个字符,请重新输入${NC}"
         continue
@@ -39,8 +117,11 @@ done
 PUBLIC_IP=$(curl -s --max-time 5 https://ifconfig.me \
   || curl -s --max-time 5 https://api.ipify.org \
   || curl -s --max-time 5 https://ipinfo.io/ip \
-  || curl -s --max-time 5 https://checkip.amazonaws.com) \
-  || echo "请自行查看你主机的IP"
+  || curl -s --max-time 5 https://checkip.amazonaws.com)
+if [ -z "$PUBLIC_IP" ]; then
+    echo -e "${RED}无法获取公网 IP,无法签发自签证书,请检查网络后重试${NC}"
+    exit 1
+fi
 
 # 3. === 修改 /etc/resolv.conf 强制系统使用IPv4 进行解析 ===
 cat > /etc/resolv.conf << EOF
@@ -72,7 +153,7 @@ echo -e "${GREEN}自签证书创建成功${NC}"
 
 # 8. === 设置文件权限 ===
 chmod 644 /etc/hysteria/self-signed.crt
-chmod 644 /etc/hysteria/self-signed.key
+chmod 600 /etc/hysteria/self-signed.key
 
 # 9. === 创建服务端配置文件 ===
 cat > /etc/hysteria/config.yaml << EOF
@@ -84,16 +165,16 @@ tls:
 
 auth:
   type: password
-  password: $PASSWORD
+  password: $(yaml_quote "$PASSWORD")
 
 trafficStats:
-  listen: :9999
-  secret: $PASSWORD
+  listen: 127.0.0.1:9999
+  secret: $(yaml_quote "$PASSWORD")
 
 obfs:
   type: salamander
   salamander:
-    password: $PASSWORD
+    password: $(yaml_quote "$PASSWORD")
 
 masquerade:
   type: proxy
@@ -106,16 +187,16 @@ EOF
 echo -e "${GREEN}服务端配置文件创建成功${NC}"
 
 # 10. === 创建客户端配置文件 ===
-cat > /etc/hysteria/H2.yaml << EOF
+cat > /etc/hysteria/h2.yaml << EOF
 proxies:
   - name: $PUBLIC_IP
     type: hysteria2
     server: $PUBLIC_IP
     port: $PORT
-    password: $PASSWORD
+    password: $(yaml_quote "$PASSWORD")
     sni: $PUBLIC_IP
     obfs: salamander
-    obfs-password: $PASSWORD
+    obfs-password: $(yaml_quote "$PASSWORD")
     skip-cert-verify: false
 
 proxy-groups:
@@ -148,13 +229,16 @@ EOF
 echo -e "${GREEN}客户端配置文件创建成功${NC}"
 
 # 11. === 开放防火墙端口 ===
-ufw allow $PORT
-ufw allow 9999
+ensure_ufw
+ufw allow "$PORT"
+ufw allow 443/tcp
+ufw allow "$PANEL_PORT"/tcp
 ufw status
 echo -e "${GREEN}防火墙完成！${NC}"
+echo "若使用云厂商安全组,请放行 UDP $PORT、TCP 443、TCP $PANEL_PORT"
 
 # 12. === 启动服务并设置开机自启 ===
-echo "正在启动启 Hysteria 服务..."
+echo "正在启动 Hysteria 服务..."
 systemctl start hysteria-server.service
 systemctl enable hysteria-server.service
 
@@ -190,62 +274,28 @@ if [[ -z "$INSTALL_FAIL2BAN" || "$INSTALL_FAIL2BAN" =~ ^[Yy]$ ]]; then
     }
 fi
 
-# 15. === 显示最终信息 ===
-echo -e "${GREEN}Hysteria 2 安装和配置完成！${NC}"
+# 15. === 安装常驻信息面板 ===
+PANEL_URL=""
+SUB_URL=""
+install_h2_panel "$PUBLIC_IP" || true
+
+# 16. === 显示最终信息 ===
+if [ "$HY2_OK" = true ]; then
+    echo -e "${GREEN}Hysteria 2 安装和配置完成！${NC}"
+else
+    echo -e "${RED}Hysteria 2 未成功运行,请先根据上方日志排查${NC}"
+fi
 echo "--------------------------------------------"
 echo -e "🌐 服务器IP:  ${GREEN}$PUBLIC_IP${NC}"
 echo -e "🚪 使用端口:  ${GREEN}$PORT${NC}"
 echo -e "🔐 连接密码:  ${GREEN}$PASSWORD${NC}"
 echo -e "📄 服务端配置:  /etc/hysteria/config.yaml"
-echo -e "📄 客户端配置:  /etc/hysteria/H2.yaml"
+echo -e "📄 客户端配置:  /etc/hysteria/h2.yaml"
 echo -e "🔏 证书路径:  /etc/hysteria/self-signed.crt"
+[ -n "$PANEL_URL" ] && echo -e "🖥️ 信息面板:  ${GREEN}$PANEL_URL${NC}"
+[ -n "$SUB_URL" ] && echo -e "📥 订阅链接:  ${GREEN}$SUB_URL${NC}"
 echo "--------------------------------------------"
-echo "现在你可以使用上述信息配置客户端连接啦 🎉"
-echo
-# 临时开启订阅链接,可填入 Clash Verge / ClashMeta,或用浏览器下载
-read -p "是否开启订阅链接? 可填入 Clash Verge 等客户端 [Y/n]: " DOWNLOAD_H2
-if [[ -z "$DOWNLOAD_H2" || "$DOWNLOAD_H2" =~ ^[Yy]$ ]]; then
-    # 精简镜像可能没有 python3 / qrencode,没有则用 apt 安装
-    NEED_PKGS=()
-    command -v python3 >/dev/null 2>&1 || NEED_PKGS+=(python3)
-    command -v qrencode >/dev/null 2>&1 || NEED_PKGS+=(qrencode)
-    if [ ${#NEED_PKGS[@]} -gt 0 ]; then
-        echo "正在安装: ${NEED_PKGS[*]}"
-        apt update
-        apt install -y "${NEED_PKGS[@]}" || {
-            echo -e "${RED}依赖安装失败,请按回车查看配置并手动复制${NC}"
-        }
-    fi
-    if command -v python3 >/dev/null 2>&1; then
-        DOWNLOAD_PORT=18080
-        DOWNLOAD_ROOT="/tmp/h2-dl"
-        mkdir -p "$DOWNLOAD_ROOT"
-        cp /etc/hysteria/H2.yaml "$DOWNLOAD_ROOT/H2.yaml"
-        ufw allow "$DOWNLOAD_PORT"/tcp >/dev/null
-        python3 -m http.server "$DOWNLOAD_PORT" --directory "$DOWNLOAD_ROOT" --bind 0.0.0.0 >/dev/null 2>&1 &
-        DOWNLOAD_PID=$!
-        SUB_URL="http://$PUBLIC_IP:$DOWNLOAD_PORT/H2.yaml"
-        echo
-        echo -e "${GREEN}订阅链接(可直接填入 Clash Verge、ClashMeta 等客户端):${NC}"
-        echo -e "  ${GREEN}$SUB_URL${NC}"
-        echo "手机可扫描下面的二维码导入:"
-        if command -v qrencode >/dev/null 2>&1; then
-            qrencode -t ansiutf8 "$SUB_URL"
-        else
-            echo -e "${RED}二维码生成失败,请手动复制上面的订阅链接${NC}"
-        fi
-        echo "也可在浏览器打开该链接下载,文件一般在:"
-        echo -e "  Windows: ${GREEN}C:\\Users\\你的用户名\\Downloads\\H2.yaml${NC}"
-        echo -e "  安卓: 文件管理器里的「下载」文件夹"
-        echo -e "${RED}关闭后订阅链接将无法继续在线更新,请先导入客户端${NC}"
-        read -p "导入或下载完成后请按回车,将关闭临时订阅服务: "
-        kill "$DOWNLOAD_PID" 2>/dev/null
-        wait "$DOWNLOAD_PID" 2>/dev/null
-        ufw --force delete allow "$DOWNLOAD_PORT"/tcp >/dev/null 2>&1
-        rm -rf "$DOWNLOAD_ROOT"
-        echo -e "${GREEN}临时订阅服务已关闭${NC}"
-    fi
-fi
+echo "云厂商安全组请放行: UDP $PORT、TCP 443、TCP $PANEL_PORT"
 echo
 echo -e "${RED}请仔细阅读以下证书的客户端配置流程！${NC}"
 echo -e "${GREEN}1.将下面的证书内容复制到客户端设备上，保存为 self-signed.crt 文件。${NC}"
@@ -256,8 +306,8 @@ echo -e 复制以下证书内容到电脑上保存为 self-signed.crt 文件:
 cat /etc/hysteria/self-signed.crt
 echo "💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖"
 echo
-read -p "需要显示客户端具体配置内容,请按回车 或执行 cat /etc/hysteria/H2.yaml 命令查看💕"
+read -p "需要显示客户端具体配置内容,请按回车 或执行 cat /etc/hysteria/h2.yaml 命令查看💕"
 echo "---------------------------------------------------"
-echo -e 复制以下配置内容到电脑上保存为 H2.yaml 文件然后导入客户端:
-cat /etc/hysteria/H2.yaml
+echo -e 复制以下配置内容到电脑上保存为 h2.yaml 文件然后导入客户端:
+cat /etc/hysteria/h2.yaml
 echo "---------------------------------------------------"
