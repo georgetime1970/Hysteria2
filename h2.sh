@@ -199,10 +199,42 @@ echo -e "🔐 连接密码:  ${GREEN}$PASSWORD${NC}"
 echo -e "📄 服务端配置:  /etc/hysteria/config.yaml"
 echo -e "📄 客户端配置:  /etc/hysteria/H2.yaml"
 echo -e "🔏 证书路径:  /etc/hysteria/self-signed.crt"
-echo -e "📥 电脑本机下载配置(PowerShell/终端执行):"
-echo -e "   ${GREEN}scp root@$PUBLIC_IP:/etc/hysteria/H2.yaml ./H2.yaml${NC}"
 echo "--------------------------------------------"
 echo "现在你可以使用上述信息配置客户端连接啦 🎉"
+echo
+# 临时用浏览器下载客户端配置,避免再开窗口用 scp 输密码
+read -p "是否用浏览器下载客户端配置 H2.yaml? [Y/n]: " DOWNLOAD_H2
+if [[ -z "$DOWNLOAD_H2" || "$DOWNLOAD_H2" =~ ^[Yy]$ ]]; then
+    # 精简镜像可能没有 python3,没有则用 apt 安装
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "未检测到 python3,正在安装..."
+        apt update
+        apt install -y python3 || {
+            echo -e "${RED}python3 安装失败,请按回车查看配置并手动复制${NC}"
+        }
+    fi
+    if command -v python3 >/dev/null 2>&1; then
+        DOWNLOAD_PORT=18080
+        DOWNLOAD_TOKEN=$(head -c 8 /dev/urandom | od -An -tx1 | tr -d ' \n')
+        DOWNLOAD_ROOT="/tmp/h2-dl"
+        mkdir -p "$DOWNLOAD_ROOT/$DOWNLOAD_TOKEN"
+        cp /etc/hysteria/H2.yaml "$DOWNLOAD_ROOT/$DOWNLOAD_TOKEN/H2.yaml"
+        ufw allow "$DOWNLOAD_PORT"/tcp >/dev/null
+        python3 -m http.server "$DOWNLOAD_PORT" --directory "$DOWNLOAD_ROOT" --bind 0.0.0.0 >/dev/null 2>&1 &
+        DOWNLOAD_PID=$!
+        echo -e "${GREEN}请在本机或手机浏览器打开下面的链接:${NC}"
+        echo -e "  ${GREEN}http://$PUBLIC_IP:$DOWNLOAD_PORT/$DOWNLOAD_TOKEN/H2.yaml${NC}"
+        echo "下载后的文件一般在:"
+        echo -e "  Windows: ${GREEN}C:\\Users\\你的用户名\\Downloads\\H2.yaml${NC}"
+        echo -e "  安卓: 文件管理器里的「下载」文件夹"
+        read -p "下载完成后请按回车,将关闭临时下载服务: "
+        kill "$DOWNLOAD_PID" 2>/dev/null
+        wait "$DOWNLOAD_PID" 2>/dev/null
+        ufw --force delete allow "$DOWNLOAD_PORT"/tcp >/dev/null 2>&1
+        rm -rf "$DOWNLOAD_ROOT"
+        echo -e "${GREEN}临时下载服务已关闭${NC}"
+    fi
+fi
 echo
 echo -e "${RED}请仔细阅读以下证书的客户端配置流程！${NC}"
 echo -e "${GREEN}1.将下面的证书内容复制到客户端设备上，保存为 self-signed.crt 文件。${NC}"
