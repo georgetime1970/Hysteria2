@@ -472,7 +472,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "application/octet-stream")
         self.send_header("Content-Length", str(size))
-        self.send_header("Content-Disposition", 'attachment; filename="%s"' % filename)
+        self.send_header("Content-Disposition", "attachment; filename=%s" % filename)
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         if self.command == "HEAD":
@@ -502,7 +502,12 @@ class Handler(BaseHTTPRequestHandler):
                 200,
                 "text/yaml; charset=utf-8",
                 data,
-                {"Content-Disposition": 'attachment; filename="h2.yaml"'},
+                {
+                    # 不加引号,避免 Clash 把 \"h2.yaml\" 当成订阅名
+                    "Content-Disposition": "attachment; filename=h2.yaml",
+                    # Clash Verge / Meta 用此头显示订阅名称
+                    "profile-title": state.server_host or "Hysteria2",
+                },
             )
             return
         if path != "/":
