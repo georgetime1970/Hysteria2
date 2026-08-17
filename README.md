@@ -2,7 +2,7 @@
 
 # 🌍 Hysteria2 极速+隐私 一键部署 🚀
 
-[![hysteris2](https://img.shields.io/badge/hysteris2-orange)](https://v2.hysteria.network/zh/)
+[![hysteria2](https://img.shields.io/badge/hysteria2-orange)](https://v2.hysteria.network/zh/)
 [![Clash Verge](https://img.shields.io/badge/Clash%20Verge-cb7fff)](https://www.clashverge.dev/)
 ![Debian](https://img.shields.io/badge/Debian-A81D33?logo=debian&logoColor=white)
 ![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?logo=ubuntu&logoColor=white)
@@ -47,7 +47,7 @@
 **使用域名的自动获取证书模式**
 
 - 需要注册域名,解析域名;
-- 使用 [cloludflare](https://dash.cloudflare.com/) 进行域名解析时,本脚本可以自动获取证书并自动续期;如果你使用的其他域名解析商,请查看官方支持自动配置证书的服务商:👉[查看此处](https://v2.hysteria.network/zh/docs/advanced/ACME-DNS-Config/);然后修改[h2_domain.sh](https://github.com/georgetime1970/h2/blob/main/h2_domain.sh)对应的第5步配置里的`acme`部分即可
+- 使用 [cloudflare](https://dash.cloudflare.com/) 进行域名解析时,本脚本可以自动获取证书并自动续期;如果你使用的其他域名解析商,请查看官方支持自动配置证书的服务商:👉[查看此处](https://v2.hysteria.network/zh/docs/advanced/ACME-DNS-Config/);然后修改[h2_domain.sh](https://github.com/georgetime1970/h2/blob/main/h2_domain.sh)对应的第5步配置里的`acme`部分即可
 
 ### 非域名模式
 
@@ -145,9 +145,10 @@ sudo journalctl --no-pager -e -u h2-panel.service # 查看面板日志
 #### 放开端口并检查防火墙
 
 ```bash
-sudo ufw allow 443       # 放开443端口
-sudo ufw allow 18080/tcp # 放开18080端口
-sudo ufw status          # 查看防火墙状态
+sudo ufw allow 443/udp    # Hysteria 连接端口(务必开 UDP)
+sudo ufw allow 443/tcp    # 域名模式伪装 HTTPS
+sudo ufw allow 18080/tcp  # 信息面板
+sudo ufw status           # 查看防火墙状态
 ```
 
 #### 启动 hysteria2 服务
@@ -220,6 +221,8 @@ curl -H "Authorization: secret" http://127.0.0.1:9999/traffic
 
 ## 📱 客户端软件下载
 
+没有代理、打不开 GitHub 时,请用 [信息面板](#信息面板) 上的「客户端下载」,由服务器代为获取官方最新安装包。
+
 - 🤖 **安卓端**：[ClashMeta for Android](https://github.com/MetaCubeX/ClashMetaForAndroid/releases)
 - 💻 **电脑端**：[Clash Verge](https://github.com/clash-verge-rev/clash-verge-rev/releases) ,有 linux 版本
 
@@ -282,9 +285,13 @@ rules:
 
 这里会列出常见的安装问题,新的问题会整理在这里,不断完善中
 
-### 1.cloudflare_api_token 如何获取?
+### 1. 为什么需要 cloudflare_api_token? 如何获取?
 
-登录 [cloudflare](https://dash.cloudflare.com/), 管理账户 → 账户 API 令牌 → 创建令牌 → 编辑区域 DNS ,根据提示继续创建即可获得 API
+域名模式要用 Let's Encrypt **自动签发并续期证书**。本脚本走的是 DNS 验证(不占用 80 端口):证书机构会检查你域名下是否存在 `_acme-challenge` 这条 TXT 记录。脚本拿这个 Token 去 Cloudflare **临时创建/删除这条 DNS 记录**,以此证明域名是你的,然后才能拿到证书。
+
+所以 Token 必须有该域名的 **DNS 编辑**权限。没有它,域名模式会申请证书失败,Hysteria 起不来。非域名模式不需要这个 Token。
+
+获取步骤: 登录 [Cloudflare](https://dash.cloudflare.com/) → 管理帐户 → 帐户 API 令牌 → 创建令牌 → 使用模板「编辑区域 DNS」→ 区域选中你的域名 → 继续创建。得到的一串字符就是 `cloudflare_api_token`,不要发给别人。
 
 ### 2.安装成功后建议手动检查hysteria2 服务状态
 
@@ -297,9 +304,10 @@ sudo systemctl status hysteria-server.service
 
 ### 3.客户端连接不上服务器?
 
-1. 端口被封: 这是针对服务器的
-   - 有可能是服务器的端口被封了,可以尝试更换一个端口重新安装部署
-   - 或者换一台服务器试试
+1. 端口被封 / 只开了 TCP 没开 UDP: 这是针对服务器的
+   - Hysteria 使用 **UDP**。云厂商安全组(和 ufw 是两套)必须放行 **UDP 你设置的端口**(推荐 443)
+   - 可以尝试更换一个端口重新安装,或换一台服务器试试
+   - 域名模式客户端的 `server` 和 `sni` 必须填**域名**,不要填 IP,否则证书对不上
 
 2. 运营商阻断了UDP访问: 这是针对家庭网络的
    - 我实际遇到过,在下载了100G左右的模型几天后,就突然无法正常连接到代理服务器,这是针对的家庭网络ip的阻断,换服务器无法解决问题,重启光猫就可以了(原因是:重启后你的ip地址变了,封锁就无效了)
@@ -323,7 +331,7 @@ sudo systemctl status hysteria-server.service
 🔧 解决方案：
 
 - 已过时 ~~Chrome 安装 [WebRTC Network Limiter](https://chromewebstore.google.com/detail/webrtc-network-limiter/npeicpdbkakmehahjeeohfdhnlpdklia)，在 `扩展程序选项` 中选择 `Use my proxy server`。~~
-- 在 `Clash Verge` 电脑端打开 `TUN模式` , 并开启 `严格路由` 模式 , 这样当你使用 `规则模式` 或 `全局模式` 时, 就不会出现 `WebRTC 泄露` 泄露了
+- 在 `Clash Verge` 电脑端打开 `TUN模式` , 并开启 `严格路由` 模式 , 这样当你使用 `规则模式` 或 `全局模式` 时, 就不会出现 `WebRTC 泄露` 了
 
 ---
 
