@@ -163,6 +163,69 @@ def ensure_client_file(kind):
     return dest, name
 
 
+def fail2ban_status():
+    """读取 fail2ban sshd 监狱的当前封禁列表,未安装或未运行则说明原因"""
+    try:
+        active = subprocess.call(
+            ["systemctl", "is-active", "--quiet", "fail2ban"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        ) == 0
+        if not active:
+            return {"ok": False, "reason": "fail2ban 未运行"}
+        out = subprocess.check_output(
+            ["fail2ban-client", "status", "sshd"],
+            stderr=subprocess.STDOUT,
+            timeout=5,
+        )
+        text = out.decode("utf-8", errors="replace")
+    except FileNotFoundError:
+        return {"ok": False, "reason": "未安装 fail2ban"}
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return {"ok": False, "reason": "无法读取 fail2ban 状态"}
+    current = "0"
+    total = "0"
+    ips = []
+    for line in text.splitlines():
+        if "Currently banned" in line:
+            current = line.split(":")[-1].strip()
+        elif "Total banned" in line:
+            total = line.split(":")[-1].strip()
+        elif "Banned IP list" in line:
+            rest = line.split(":", 1)[-1].strip()
+            ips = rest.split() if rest else []
+    return {"ok": True, "current": current, "total": total, "ips": ips}
+
+
+def render_ban_block():
+    """生成 SSH 黑名单卡片 HTML"""
+    info = fail2ban_status()
+    if not info["ok"]:
+        return (
+            '<div class="card dlbox">'
+            '<div style="font-size:16px;font-weight:650;margin-bottom:8px">SSH 黑名单</div>'
+            '<p class="foot" style="margin:0">%s。安装 fail2ban 后可在此查看被封禁的 IP。</p>'
+            "</div>"
+        ) % html_escape(info["reason"])
+    if info["ips"]:
+        chips = "".join(
+            '<span class="ip">%s</span>' % html_escape(ip) for ip in info["ips"]
+        )
+    else:
+        chips = '<span class="foot">当前没有被封禁的 IP</span>'
+    return (
+        '<div class="card dlbox">'
+        '<div style="font-size:16px;font-weight:650;margin-bottom:8px">SSH 黑名单</div>'
+        '<div class="stats">'
+        '<div class="stat"><span>当前封禁</span><b>%s</b></div>'
+        '<div class="stat"><span>累计封禁</span><b>%s</b></div>'
+        "</div>"
+        '<div class="iplist">%s</div>'
+        '<p class="foot" style="margin:12px 0 0">来自 fail2ban 的 sshd 监狱,防止 SSH 暴力破解。</p>'
+        "</div>"
+    ) % (html_escape(info["current"]), html_escape(info["total"]), chips)
+
+
 def make_qr_svg(url):
     """用 qrencode 生成订阅链接的 SVG,失败返回空字符串"""
     try:
@@ -257,6 +320,7 @@ def render_page(state):
     status_class = "ok" if running else "bad"
     status_text = "运行中" if running else "已停止"
     qr_block = qr if qr else "<p class='hint'>二维码生成失败,请复制订阅链接</p>"
+    ban_block = render_ban_block()
     return """<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -295,6 +359,8 @@ button:hover { border-color:var(--green); color:var(--green); }
 .dl { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
 .dlbtn { background:#243044; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:10px 12px; text-decoration:none; font-size:14px; }
 .dlbtn:hover { border-color:var(--green); color:var(--green); }
+.iplist { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.ip { background:#121a26; border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:13px; font-family:ui-monospace,monospace; }
 </style>
 </head>
 <body>
@@ -336,6 +402,7 @@ button:hover { border-color:var(--green); color:var(--green); }
       <a class="dlbtn" href="/clients/linux">Linux 64 位 deb (Clash Verge)</a>
     </div>
   </div>
+  %s
   <p class="foot">订阅链接含随机路径,不要发到群里。面板服务停止后,Clash 将无法在线更新该订阅。</p>
 </div>
 <script>
@@ -367,6 +434,7 @@ document.getElementById("copy").onclick = function () {
         html_escape(state.server_host),
         html_escape(state.server_port),
         html_escape(sub),
+        ban_block,
         json.dumps(state.password, ensure_ascii=False),
     )
 
