@@ -114,6 +114,21 @@ bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/main/fail2
 
 ---
 
+### 🗑️ 一键卸载
+
+会停止信息面板和 Hysteria,删除 `/etc/hysteria/` 等本项目写入的配置,并解锁 `resolv.conf`。
+
+- **默认保留** fail2ban,以及 443 等可能被其他服务使用的防火墙规则
+- 脚本会再问你要不要删 ufw 端口规则、要不要卸 fail2ban
+- **不会**卸载 python3
+- 云厂商安全组请到控制台自行关掉对应端口
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/main/uninstall.sh)
+```
+
+---
+
 ## 🖥️ 信息面板
 
 安装完成后会自动启动常驻面板,默认端口 `18080`(开机自启)。

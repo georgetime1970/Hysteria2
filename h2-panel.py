@@ -9,7 +9,8 @@ import ssl
 import subprocess
 import urllib.error
 import urllib.request
-from http.server import BaseHTTPRequestHandler, HTTPServer
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 # 面板配置文件路径,由安装脚本写入
 ENV_PATH = "/etc/hysteria/panel.env"
@@ -265,6 +266,8 @@ class PanelState:
         self.key_file = env.get("KEY_FILE") or ""
         self.cert_mtime = 0
         self.ssl_context = None
+        # 证书热加载时避免多线程同时 load
+        self.cert_lock = threading.Lock()
 
     def public_scheme(self):
         """对外打印/页面使用的协议"""
@@ -297,12 +300,13 @@ class PanelState:
         if not os.path.isfile(self.cert_file) or not os.path.isfile(self.key_file):
             return
         mtime = max(os.path.getmtime(self.cert_file), os.path.getmtime(self.key_file))
-        if self.ssl_context is not None and mtime == self.cert_mtime:
-            return
-        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        ctx.load_cert_chain(self.cert_file, self.key_file)
-        self.ssl_context = ctx
-        self.cert_mtime = mtime
+        with self.cert_lock:
+            if self.ssl_context is not None and mtime == self.cert_mtime:
+                return
+            ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            ctx.load_cert_chain(self.cert_file, self.key_file)
+            self.ssl_context = ctx
+            self.cert_mtime = mtime
 
 
 STATE = None
@@ -548,11 +552,14 @@ class Handler(BaseHTTPRequestHandler):
         self.send_bytes(200, "text/html; charset=utf-8", render_page(state))
 
 
-class PanelServer(HTTPServer):
-    """每次连接前检查证书是否已续期"""
+class PanelServer(ThreadingHTTPServer):
+    """多线程处理请求,避免一次 GitHub 下载卡住整个面板;每次连接前检查证书是否已续期"""
+
+    daemon_threads = True
 
     def get_request(self):
         sock, addr = super().get_request()
+        sock.settimeout(30)
         STATE.reload_cert_if_needed()
         if STATE.ssl_context is not None:
             sock = STATE.ssl_context.wrap_socket(sock, server_side=True)
