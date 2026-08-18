@@ -197,7 +197,8 @@ proxies:
     sni: $PUBLIC_IP
     obfs: salamander
     obfs-password: $(yaml_quote "$PASSWORD")
-    skip-cert-verify: false
+    # 自签证书手机没法安装,订阅默认跳过校验;电脑装了证书可改成 false
+    skip-cert-verify: true
 
 proxy-groups:
   - name: H2
@@ -300,7 +301,7 @@ echo
 echo -e "${RED}请仔细阅读以下证书的客户端配置流程！${NC}"
 echo -e "${GREEN}1.将下面的证书内容复制到客户端设备上，保存为 self-signed.crt 文件。${NC}"
 echo -e "${GREEN}2.Windows 客户端,双击 self-signed.crt 文件 → “安装证书” → 选择“本地计算机” → 选择“将所有的证书都放入下列存储” →  存储到 “受信任的根证书颁发机构”。${NC}"
-echo -e "${GREEN}3.如果不在意数据泄露,可以直接将 客户端配置文件中的\"skip-cert-verify: false\" 设置为true,将跳过证书验证${NC}"
+echo -e "${GREEN}3.订阅默认 skip-cert-verify: true (不验证证书),手机可直接用。电脑若已安装下方证书,可改成 false,以便识别假服务器。${NC}"
 echo "💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖💖"
 echo -e 复制以下证书内容到电脑上保存为 self-signed.crt 文件:
 cat /etc/hysteria/self-signed.crt
