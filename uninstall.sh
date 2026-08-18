@@ -44,13 +44,25 @@ bash <(curl -fsSL https://get.hy2.sh/) --remove || {
     echo -e "${RED}官方卸载命令失败,将继续删除本项目残留文件${NC}"
 }
 
-# 3. === 删除配置、证书和 ACME 数据(官方 --remove 不会删这些) ===
-echo "正在删除配置文件..."
+# 3. === 删除配置(官方 --remove 不会删这些);ACME 证书默认保留,避免 Let's Encrypt 限额 ===
+echo "正在删除 /etc/hysteria 配置..."
 rm -rf /etc/hysteria
-rm -rf /var/lib/hysteria
-userdel hysteria >/dev/null 2>&1 || true
 
 systemctl daemon-reload
+
+# 3b. === ACME 证书目录,删除后 7 天内重装可能无法再申请该域名的证书 ===
+if [ -d /var/lib/hysteria ]; then
+    echo -e "${RED}检测到 ACME 证书目录 /var/lib/hysteria${NC}"
+    echo "Let's Encrypt 同一域名 7 天内最多签发 5 张证书。删掉后重装会重新申请,容易触发限额导致起不来。"
+    read -p "是否删除 ACME 证书? 准备过几天再装请选 n [y/N]: " DEL_ACME
+    if [[ "$DEL_ACME" =~ ^[Yy]$ ]]; then
+        rm -rf /var/lib/hysteria
+        userdel hysteria >/dev/null 2>&1 || true
+        echo "已删除 ACME 证书和 hysteria 用户"
+    else
+        echo "已保留 /var/lib/hysteria,重装时可继续用已有证书"
+    fi
+fi
 
 # 4. === 解锁 resolv.conf,不改回 nameserver,避免猜错原来的 DNS ===
 if [ -f /etc/resolv.conf ]; then

@@ -118,8 +118,8 @@ bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/main/fail2
 
 会停止信息面板和 Hysteria,删除 `/etc/hysteria/` 等本项目写入的配置,并解锁 `resolv.conf`。
 
-- **默认保留** fail2ban,以及 443 等可能被其他服务使用的防火墙规则
-- 脚本会再问你要不要删 ufw 端口规则、要不要卸 fail2ban
+- **默认保留** fail2ban、ACME 证书目录(`/var/lib/hysteria`),以及 443 等可能被其他服务使用的防火墙规则
+- 脚本会再问你要不要删 ufw 端口规则、要不要卸 fail2ban、要不要删证书(删证书后 7 天内重装可能申请失败)
 - **不会**卸载 python3
 - 云厂商安全组请到控制台自行关掉对应端口
 
@@ -326,6 +326,14 @@ sudo systemctl status hysteria-server.service
 
 2. 运营商阻断了UDP访问: 这是针对家庭网络的
    - 我实际遇到过,在下载了100G左右的模型几天后,就突然无法正常连接到代理服务器,这是针对的家庭网络ip的阻断,换服务器无法解决问题,重启光猫就可以了(原因是:重启后你的ip地址变了,封锁就无效了)
+
+### 4. 卸载后重装提示 too many certificates / HTTP 429?
+
+Let's Encrypt 对同一域名 **7 天内最多签发 5 张** 证书。卸载时如果删掉了 `/var/lib/hysteria`(证书私钥也在里面),重装只能再申请一张新的,次数用尽就会失败。
+
+- 日志里的 `retry after ... UTC` 就是最早能再申请的时间,等到点后执行: `sudo systemctl restart hysteria-server.service`
+- **不要反复卸载重装**
+- 卸载脚本默认保留 ACME 证书,只有你确认才删除
 
 ## 🔐 VPN 安全性检测指南
 
