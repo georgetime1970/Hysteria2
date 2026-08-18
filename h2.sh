@@ -151,11 +151,7 @@ openssl req -x509 -newkey rsa:2048 -keyout /etc/hysteria/self-signed.key -out /e
 }
 echo -e "${GREEN}自签证书创建成功${NC}"
 
-# 8. === 设置文件权限 ===
-chmod 644 /etc/hysteria/self-signed.crt
-chmod 600 /etc/hysteria/self-signed.key
-
-# 9. === 创建服务端配置文件 ===
+# 8. === 创建服务端配置文件 ===
 cat > /etc/hysteria/config.yaml << EOF
 listen: :$PORT
 
@@ -184,9 +180,13 @@ masquerade:
   listenHTTPS: :443
   forceHTTPS: true
 EOF
+# Hysteria 以 hysteria 用户运行,私钥和配置必须归该用户所有
+chown hysteria:hysteria /etc/hysteria/self-signed.crt /etc/hysteria/self-signed.key /etc/hysteria/config.yaml
+chmod 644 /etc/hysteria/self-signed.crt
+chmod 600 /etc/hysteria/self-signed.key /etc/hysteria/config.yaml
 echo -e "${GREEN}服务端配置文件创建成功${NC}"
 
-# 10. === 创建客户端配置文件 ===
+# 9. === 创建客户端配置文件 ===
 cat > /etc/hysteria/h2.yaml << EOF
 proxies:
   - name: $PUBLIC_IP
@@ -228,7 +228,7 @@ rules:
 EOF
 echo -e "${GREEN}客户端配置文件创建成功${NC}"
 
-# 11. === 开放防火墙端口 ===
+# 10. === 开放防火墙端口 ===
 ensure_ufw
 ufw allow "$PORT"
 ufw allow 443/tcp
@@ -237,12 +237,12 @@ ufw status
 echo -e "${GREEN}防火墙完成！${NC}"
 echo "若使用云厂商安全组,请放行 UDP $PORT、TCP 443、TCP $PANEL_PORT"
 
-# 12. === 启动服务并设置开机自启 ===
+# 11. === 启动服务并设置开机自启 ===
 echo "正在启动 Hysteria 服务..."
 systemctl start hysteria-server.service
 systemctl enable hysteria-server.service
 
-# 13. === 检查服务状态,最多等待约15秒 ===
+# 12. === 检查服务状态,最多等待约15秒 ===
 echo "检查服务状态..."
 HY2_OK=false
 for i in $(seq 1 15); do
@@ -265,7 +265,7 @@ else
     echo -e "${RED}请根据以上错误排查,修复后执行: systemctl restart hysteria-server.service${NC}"
 fi
 
-# 14. === 选装 fail2ban,防止 SSH 端口被暴力破解 ===
+# 13. === 选装 fail2ban,防止 SSH 端口被暴力破解 ===
 read -p "是否选装 fail2ban 防 SSH 爆破? 推荐新服务器安装 [Y/n]: " INSTALL_FAIL2BAN
 if [[ -z "$INSTALL_FAIL2BAN" || "$INSTALL_FAIL2BAN" =~ ^[Yy]$ ]]; then
     bash <(curl -fsSL https://raw.githubusercontent.com/georgetime1970/h2/main/fail2ban.sh) || {
@@ -274,12 +274,12 @@ if [[ -z "$INSTALL_FAIL2BAN" || "$INSTALL_FAIL2BAN" =~ ^[Yy]$ ]]; then
     }
 fi
 
-# 15. === 安装常驻信息面板 ===
+# 14. === 安装常驻信息面板 ===
 PANEL_URL=""
 SUB_URL=""
 install_h2_panel "$PUBLIC_IP" || true
 
-# 16. === 显示最终信息 ===
+# 15. === 显示最终信息 ===
 if [ "$HY2_OK" = true ]; then
     echo -e "${GREEN}Hysteria 2 安装和配置完成！${NC}"
 else

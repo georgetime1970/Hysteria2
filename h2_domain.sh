@@ -215,6 +215,9 @@ masquerade:
   listenHTTPS: :443
   forceHTTPS: true
 EOF
+# 配置含密码和 API Token,仅允许 hysteria 用户读取
+chown hysteria:hysteria /etc/hysteria/config.yaml
+chmod 600 /etc/hysteria/config.yaml
 echo -e "${GREEN}------ 服务端配置文件创建成功! ------${NC}"
 
 # 6. === 创建客户端配置文件 ===
