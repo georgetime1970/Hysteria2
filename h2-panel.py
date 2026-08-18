@@ -430,12 +430,31 @@ document.getElementById("toggle").onclick = function () {
 };
 document.getElementById("copy").onclick = function () {
   var t = document.getElementById("sub").textContent;
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(t);
-  }
-  this.textContent = "已复制";
   var btn = this;
-  setTimeout(function () { btn.textContent = "复制链接"; }, 1500);
+  function done(ok) {
+    btn.textContent = ok ? "已复制" : "复制失败,请手动选择";
+    setTimeout(function () { btn.textContent = "复制链接"; }, 1500);
+  }
+  function fallback() {
+    // HTTP 页面没有 Clipboard API,用隐藏文本框走 execCommand
+    var ta = document.createElement("textarea");
+    ta.value = t;
+    ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+    done(ok);
+  }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(t).then(function () { done(true); }).catch(fallback);
+    return;
+  }
+  fallback();
 };
 </script>
 </body>
