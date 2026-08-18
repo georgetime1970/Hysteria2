@@ -34,7 +34,7 @@
 
 4. 🛡️ 俺给小白提供了 [fail2ban.sh](https://github.com/georgetime1970/h2/blob/main/fail2ban.sh) 脚本用于保护服务器免受 SSH 暴力破解攻击,可选择性安装
 
-5. 🧑‍💻 目前给服务端增加了更安全的 [obfs 混淆算法配置](https://v2.hysteria.network/docs/advanced/Full-Server-Config/#obfuscation)、常驻 [信息面板](#信息面板)(订阅链接 / 二维码 / 流量),以及本机 [流量统计 API](https://v2.hysteria.network/docs/advanced/Traffic-Stats-API/)
+5. 🧑‍💻 目前给服务端增加了更安全的 [obfs 混淆算法配置](https://v2.hysteria.network/docs/advanced/Full-Server-Config/#obfuscation)、常驻 [信息面板](#️-信息面板)(订阅链接 / 二维码 / 流量),以及本机 [流量统计 API](https://v2.hysteria.network/docs/advanced/Traffic-Stats-API/)
 
 ---
 
@@ -213,7 +213,7 @@ sudo fail2ban-client status sshd
 
 #### 查询流量统计 API
 
-流量已显示在 [信息面板](#信息面板) 中(单位 MiB)。接口只监听本机,不再对公网开放:
+流量已显示在 [信息面板](#️-信息面板) 中(单位 MiB)。接口只监听本机,不再对公网开放:
 
 ```bash
 curl -H "Authorization: secret" http://127.0.0.1:9999/traffic
@@ -239,7 +239,7 @@ curl -H "Authorization: secret" http://127.0.0.1:9999/traffic
 
 ## 📱 客户端软件下载
 
-没有代理、打不开 GitHub 时,请用 [信息面板](#信息面板) 上的「客户端下载」,由服务器代为获取官方最新安装包。
+没有代理、打不开 GitHub 时,请用 [信息面板](#️-信息面板) 上的「客户端下载」,由服务器代为获取官方最新安装包。
 
 - 🤖 **安卓端**：[ClashMeta for Android](https://github.com/MetaCubeX/ClashMetaForAndroid/releases)
 - 💻 **电脑端**：[Clash Verge](https://github.com/clash-verge-rev/clash-verge-rev/releases) ,有 linux 版本
