@@ -35,12 +35,41 @@ sanitize_domain() {
     printf '%s' "$d"
 }
 
-# 若 ufw 未安装或未启用则处理
+# 放行本机 SSH 端口,必须在 ufw enable 之前调用
+# ufw 默认入站 deny; Debian 等镜像没有预置 OpenSSH 规则,
+# 启用后当前会话因 conntrack 还能用,一旦断开就再也连不上
+allow_ssh_ufw() {
+    # port: 待放行的单个 SSH 端口
+    local port
+    # ports: 需要放行的端口列表,22 始终包含以免漏掉默认 sshd
+    local ports="22"
+
+    # 当前 SSH 会话的服务端端口 (SSH_CONNECTION 第 4 列),用户改过端口时靠这个保住现有连接
+    if [ -n "${SSH_CONNECTION:-}" ]; then
+        port=$(echo "$SSH_CONNECTION" | awk '{print $4}')
+        [ -n "$port" ] && ports="$ports $port"
+    fi
+
+    # sshd_config / sshd_config.d 里显式写的 Port
+    if [ -f /etc/ssh/sshd_config ]; then
+        ports="$ports $(grep -hE '^[[:space:]]*Port[[:space:]]+[0-9]+' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{print $2}')"
+    fi
+
+    for port in $ports; do
+        [[ "$port" =~ ^[0-9]+$ ]] || continue
+        ufw allow "${port}/tcp" >/dev/null
+    done
+    # Ubuntu 云镜像常见的应用配置,不存在时忽略错误
+    ufw allow OpenSSH >/dev/null 2>&1 || true
+}
+
+# 若 ufw 未安装或未启用则处理;启用前先放行 SSH,避免把自己锁在门外
 ensure_ufw() {
     if ! command -v ufw >/dev/null 2>&1; then
         apt update
         apt install -y ufw
     fi
+    allow_ssh_ufw
     if ! ufw status 2>/dev/null | grep -q "Status: active"; then
         echo "正在启用 ufw 防火墙..."
         ufw --force enable
@@ -269,7 +298,7 @@ ufw allow 443/tcp
 ufw allow "$PANEL_PORT"/tcp
 ufw status
 echo -e "${GREEN}------ 防火墙配置完成! ------${NC}"
-echo "若使用云厂商安全组,请放行 UDP $PORT、TCP 443、TCP $PANEL_PORT"
+echo "本机 ufw 已放行 SSH。若使用云厂商安全组,请放行 UDP $PORT、TCP 443、TCP $PANEL_PORT"
 
 # 8. === 立即启动服务,设置开机自启 ===
 echo "正在启动 Hysteria 服务..."

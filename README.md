@@ -163,6 +163,8 @@ sudo journalctl --no-pager -e -u h2-panel.service # 查看面板日志
 #### 放开端口并检查防火墙
 
 ```bash
+sudo ufw allow OpenSSH    # SSH,防止启用防火墙后失联
+sudo ufw allow 22/tcp     # 若 SSH 不在 22,改成你的端口
 sudo ufw allow 443/udp    # Hysteria 连接端口(务必开 UDP)
 sudo ufw allow 443/tcp    # 域名模式伪装 HTTPS
 sudo ufw allow 18080/tcp  # 信息面板
@@ -311,7 +313,26 @@ rules:
 
 获取步骤: 登录 [Cloudflare](https://dash.cloudflare.com/) → 管理帐户 → 帐户 API 令牌 → 创建令牌 → 使用模板「编辑区域 DNS」→ 区域选中你的域名 → 继续创建。得到的一串字符就是 `cloudflare_api_token`,不要发给别人。
 
-### 2.安装成功后建议手动检查hysteria2 服务状态
+### 2.安装之后 SSH 连不上 / 服务器失联?
+
+脚本会启用 ufw,默认入站策略是 **拒绝**。旧版本只放行了 Hysteria 端口,没有放行 SSH:
+
+- **Ubuntu 云镜像**(Vultr 等)通常已经预置了 `OpenSSH` 规则,启用 ufw 后 SSH 仍然通,所以不容易踩坑
+- **Debian 以及部分干净镜像**没有这条规则。安装时当前 SSH 会话还能用(已建立的连接不会立刻断),**一旦断开就再也连不上**
+
+当前脚本会在启用 ufw **之前**放行 22、当前 SSH 会话端口,以及 `sshd_config` 里写的 Port。
+
+若已经失联:用云厂商的 VNC / 网页控制台登录,执行:
+
+```bash
+sudo ufw allow OpenSSH
+sudo ufw allow 22/tcp
+sudo ufw reload
+```
+
+SSH 不在 22 端口时,把 `22` 换成你的端口。
+
+### 3.安装成功后建议手动检查hysteria2 服务状态
 
 ```bash
 sudo systemctl status hysteria-server.service
@@ -320,7 +341,7 @@ sudo systemctl status hysteria-server.service
 - 如果失败了,先重试重启命令`sudo systemctl restart hysteria-server.service`
 - 如果还是无法启动,请查看日志`sudo journalctl --no-pager -e -u hysteria-server.service` ,根据提示解决问题(丢给AI),如果无法解决请加入群里寻求帮助
 
-### 3.客户端连接不上服务器?
+### 4.客户端连接不上服务器?
 
 1. 端口被封 / 只开了 TCP 没开 UDP: 这是针对服务器的
    - Hysteria 使用 **UDP**。云厂商安全组(和 ufw 是两套)必须放行 **UDP 你设置的端口**(推荐 443)
@@ -330,7 +351,7 @@ sudo systemctl status hysteria-server.service
 2. 运营商阻断了UDP访问: 这是针对家庭网络的
    - 我实际遇到过,在下载了100G左右的模型几天后,就突然无法正常连接到代理服务器,这是针对的家庭网络ip的阻断,换服务器无法解决问题,重启光猫就可以了(原因是:重启后你的ip地址变了,封锁就无效了)
 
-### 4. 卸载后重装提示 too many certificates / HTTP 429?
+### 5. 卸载后重装提示 too many certificates / HTTP 429?
 
 Let's Encrypt 对同一域名 **7 天内最多签发 5 张** 证书。卸载时如果删掉了 `/var/lib/hysteria`(证书私钥也在里面),重装只能再申请一张新的,次数用尽就会失败。
 
